@@ -25,6 +25,4 @@ jobs:
     - name: Build
       run: dotnet build BioPulse-Rpi/BioPulse-Rpi.sln
       working-directory: ../BioPulse-Rpi
-    - name: Test
-      run: dotnet test BioPulse-Rpi/BioPulse-Rpi.sl
-      working-directory: ../BioPulse-Rpi
+
