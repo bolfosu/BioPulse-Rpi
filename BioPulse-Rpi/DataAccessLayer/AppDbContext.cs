@@ -8,14 +8,18 @@ namespace DataAccessLayer
 {
     public class AppDbContext : DbContext
     {
-        // DbSet properties representing tables in the database
+        
         public DbSet<TemperatureSensor> TemperatureSensors { get; set; }
-       // public DbSet<User> Users { get; set; }
-       // public DbSet<PlantProfile> PlantProfiles { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<PlantProfile> PlantProfiles { get; set; }
+        public DbSet<EcSensor> EcSensors { get; set; }
+        public DbSet<PhSensor> PhSensors { get; set; }
+        public DbSet<LightSensor> LightSensors { get; set; }
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            // Replace 'hydroponicsystem.db' with your desired database name or path
+            
             optionsBuilder.UseSqlite("Data Source=hydroponicsystem.db");
         }
 
