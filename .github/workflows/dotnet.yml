@@ -19,8 +19,12 @@ jobs:
       with:
         dotnet-version: 7.0.x
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore BioPulse-Rpi/BioPulse-Rpi.sln
+      working-directory: ./BioPulse-Rpi
+      
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build BioPulse-Rpi/BioPulse-Rpi.sln
+      working-directory: ./BioPulse-Rpi
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test BioPulse-Rpi/BioPulse-Rpi.sl
+      working-directory: ./BioPulse-Rpi
