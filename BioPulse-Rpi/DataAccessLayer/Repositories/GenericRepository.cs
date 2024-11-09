@@ -4,10 +4,10 @@ namespace DataAccessLayer.Repositories
 {
     public class GenericRepository<T> : IRepository<T> where T : class
     {
-        private readonly DbContext _context;
+        private readonly AppDbContext _context; // Use AppDbContext directly
         private readonly DbSet<T> _dbSet;
 
-        public GenericRepository(DbContext context)
+        public GenericRepository(AppDbContext context) // Change type to AppDbContext
         {
             _context = context;
             _dbSet = _context.Set<T>();

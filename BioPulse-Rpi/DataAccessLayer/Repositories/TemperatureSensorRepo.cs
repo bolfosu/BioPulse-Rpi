@@ -5,7 +5,8 @@ namespace DataAccessLayer.Repositories
 {
     public class TemperatureSensorRepo : GenericRepository<TemperatureSensor>
     {
-        public TemperatureSensorRepo(DbContext context) : base(context)
+        
+        public TemperatureSensorRepo(AppDbContext context) : base(context) 
         {
         }
 

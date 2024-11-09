@@ -17,6 +17,7 @@ namespace PresentationTier
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlite("Data Source=hydroponicsystem.db"));
 
+
             // Register repositories
             services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IRepository<TemperatureSensor>, TemperatureSensorRepo>();
