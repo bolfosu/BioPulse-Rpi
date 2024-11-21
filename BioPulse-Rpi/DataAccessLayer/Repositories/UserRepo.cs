@@ -9,10 +9,11 @@ namespace DataAccessLayer.Repositories
         {
         }
 
-        // You can add custom methods related to User if needed
+        
         public async Task<User> GetByEmailAsync(string email)
         {
             return await GetDbSet().FirstOrDefaultAsync(user => user.Email == email);
         }
+        //add, update, getbyid...
     }
 }

@@ -14,10 +14,6 @@ namespace DataAccessLayer.Models
         public byte Address { get; set; }
 
 
-        public void UpdateTemperature(double newReading)
-        {
-            LastReading = newReading;
-            LastReadingTime = DateTime.Now;
-        }
+
     }
 }

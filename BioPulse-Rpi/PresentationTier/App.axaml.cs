@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using PresentationTier.ViewModels;
 using PresentationTier.Views;
 using System;
+using Avalonia.ReactiveUI;
 
 namespace PresentationTier
 {
@@ -25,6 +26,7 @@ namespace PresentationTier
                 var host = BuildHost();
                 ServiceProvider = host.Services;
 
+                // Set up the main window
                 desktop.MainWindow = new MainWindow
                 {
                     DataContext = ServiceProvider.GetRequiredService<MainViewModel>()
@@ -40,9 +42,15 @@ namespace PresentationTier
                 .ConfigureServices((context, services) =>
                 {
                     var startup = new Startup();
-                    startup.ConfigureServices(services);
+                    startup.ConfigureServices(services); // Add your DI setup here
                 })
                 .Build();
         }
+
+        public static AppBuilder BuildAvaloniaApp() =>
+            AppBuilder.Configure<App>()
+                .UsePlatformDetect()   // Automatically detect and use the platform (Windows, Linux, Mac)
+                .LogToTrace()           // Optionally log Avalonia trace messages
+                .UseReactiveUI();       // If you're using ReactiveUI
     }
 }
