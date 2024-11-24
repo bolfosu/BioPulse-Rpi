@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
 using DataAccessLayer.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessLayer.Repositories
 {
@@ -7,15 +8,24 @@ namespace DataAccessLayer.Repositories
     {
         public UserRepo(AppDbContext context) : base(context) { }
 
+
         public async Task<User> GetByEmailAsync(string email)
         {
-            return await GetDbSet().FirstOrDefaultAsync(user => user.Email == email);
+            return await GetDbSet().FirstOrDefaultAsync(u => u.Email == email);
         }
+
+        // Authenticate user
+        public async Task<User> AuthenticateAsync(string email, string passwordHash)
+        {
+            return await GetDbSet().FirstOrDefaultAsync(u => u.Email == email && u.PasswordHash == passwordHash);
+        }
+
 
         public async Task<bool> CheckCredentialsAsync(string email, string password)
         {
-            var user = await GetDbSet().FirstOrDefaultAsync(u => u.Email == email && u.Password == password);
+            var user = await GetDbSet().FirstOrDefaultAsync(u => u.Email == email && u.PasswordHash == password);
             return user != null;
         }
     }
 }
+

@@ -39,10 +39,10 @@ namespace Tests
             {
                 Name = "John Doe",
                 Email = "john.doe@example.com",
-                Password = "password123",
+                PasswordHash = "password123",
                 SecurityQuestion = "What is your pet's name?",
-                SecurityAnswer = "Fluffy",
-                PhoneNumber = 123456789
+                SecurityAnswerHash = "Fluffy",
+                PhoneNumber = "123456789"
             };
 
             // Act
@@ -63,20 +63,20 @@ namespace Tests
             {
                 Name = "Jane Smith",
                 Email = "jane.smith@example.com",
-                Password = "securepassword",
+                PasswordHash = "securepassword",
                 SecurityQuestion = "What is your mother's maiden name?",
-                SecurityAnswer = "Johnson",
-                PhoneNumber = 987654321
+                SecurityAnswerHash = "Johnson",
+                PhoneNumber = "987654321"
             };
             await _userRepo.AddAsync(user);
 
             // Act
-            user.PhoneNumber = 111222333;
+            user.PhoneNumber = "111222333";
             await _userRepo.UpdateAsync(user);
             var result = await _userRepo.GetByIdAsync(user.Id);
 
             // Assert
-            Assert.Equal(111222333, result.PhoneNumber);
+            Assert.Equal("111222333", result.PhoneNumber);
         }
 
         [Fact]
@@ -87,10 +87,10 @@ namespace Tests
             {
                 Name = "Mark Lee",
                 Email = "mark.lee@example.com",
-                Password = "pass456",
+                PasswordHash = "pass456",
                 SecurityQuestion = "What was the name of your first school?",
-                SecurityAnswer = "Greenwood",
-                PhoneNumber = 555666777
+                SecurityAnswerHash = "Greenwood",
+                PhoneNumber = "555666777"
             };
             await _userRepo.AddAsync(user);
 
@@ -110,10 +110,10 @@ namespace Tests
             {
                 Name = "Alice Johnson",
                 Email = "alice.johnson@example.com",
-                Password = "mypassword",
+                PasswordHash = "mypassword",
                 SecurityQuestion = "Where were you born?",
-                SecurityAnswer = "New York",
-                PhoneNumber = 123123123
+                SecurityAnswerHash = "New York",
+                PhoneNumber = "123123123"
             };
             await _userRepo.AddAsync(user);
 
