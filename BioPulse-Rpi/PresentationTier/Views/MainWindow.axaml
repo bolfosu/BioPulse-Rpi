@@ -1,12 +1,20 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:PresentationTier.ViewModels"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:views="clr-namespace:PresentationTier.Views"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="PresentationTier.Views.MainWindow"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="PresentationTier">
-        <views:MainView />
+        Title="Hydroponic System"
+        Width="800" Height="450">
+
+	<Window.Resources>
+		<ResourceDictionary>
+			<!-- Define a style for all TextBlock elements -->
+			<Style Selector="TextBlock">
+				<Setter Property="FontSize" Value="20" />
+				<Setter Property="Foreground" Value="Blue" />
+			</Style>
+		</ResourceDictionary>
+	</Window.Resources>
+
+	<StackPanel>
+		<TextBlock Text="Styled Debug Content" />
+	</StackPanel>
 </Window>

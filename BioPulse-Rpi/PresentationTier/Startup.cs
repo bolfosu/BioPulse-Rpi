@@ -1,29 +1,28 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using DataAccessLayer.Models;
-using DataAccessLayer.Repositories;
+﻿using DataAccessLayer.Repositories;
+using LogicLayer.Services;
+using Microsoft.Extensions.DependencyInjection;
+using PresentationTier.ViewModels;
 using Microsoft.EntityFrameworkCore;
-using DataAccessLayer;
-using DataAccessLayer.Repositories;
 
-
-namespace PresentationTier
+public class Startup
 {
-    public class Startup
+    public void ConfigureServices(IServiceCollection services)
     {
-        public void ConfigureServices(IServiceCollection services)
-        {
-            // Register DbContext with SQLite connection
-            services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlite("Data Source=hydroponicsystem.db"));
+        // Register DbContext
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseSqlite("Data Source=hydroponicsystem.db"));
 
+        // Register repositories
+        services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
+        services.AddScoped<UserRepo>();
 
-            // Register repositories
-            services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
-            services.AddScoped<IRepository<TemperatureSensor>, TemperatureSensorRepo>();
+        // Register services
+        services.AddTransient<UserManagementService>();
 
-            // Register any other services or ViewModels here
-            // services.AddTransient<MainViewModel>();
-        }
+        // Register ViewModels
+        services.AddSingleton<MainWindowViewModel>();
+        services.AddTransient<LoginViewModel>();
+        services.AddTransient<RegistrationViewModel>();
+        services.AddTransient<MainViewModel>();
     }
 }
