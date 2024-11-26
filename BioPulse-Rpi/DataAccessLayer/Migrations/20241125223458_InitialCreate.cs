@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataAccessLayer.Migrations
 {
     /// <inheritdoc />
-    public partial class Models : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -27,6 +27,19 @@ namespace DataAccessLayer.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_EcSensors", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ImageCaptures",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    IsEnabled = table.Column<bool>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ImageCaptures", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -61,17 +74,35 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "TemperatureSensors",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    IsEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
+                    IsWireless = table.Column<bool>(type: "INTEGER", nullable: false),
+                    LastReading = table.Column<double>(type: "REAL", nullable: false),
+                    LastReadingTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Address = table.Column<byte>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TemperatureSensors", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Email = table.Column<string>(type: "TEXT", nullable: false),
-                    Password = table.Column<string>(type: "TEXT", nullable: false),
+                    Email = table.Column<string>(type: "TEXT", nullable: true),
+                    PasswordHash = table.Column<string>(type: "TEXT", nullable: false),
                     SecurityQuestion = table.Column<string>(type: "TEXT", nullable: false),
-                    SecurityAnswer = table.Column<string>(type: "TEXT", nullable: false),
-                    PhoneNumber = table.Column<int>(type: "INTEGER", nullable: false)
+                    SecurityAnswerHash = table.Column<string>(type: "TEXT", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -121,6 +152,9 @@ namespace DataAccessLayer.Migrations
                 name: "EcSensors");
 
             migrationBuilder.DropTable(
+                name: "ImageCaptures");
+
+            migrationBuilder.DropTable(
                 name: "LightSensors");
 
             migrationBuilder.DropTable(
@@ -128,6 +162,9 @@ namespace DataAccessLayer.Migrations
 
             migrationBuilder.DropTable(
                 name: "PlantProfiles");
+
+            migrationBuilder.DropTable(
+                name: "TemperatureSensors");
 
             migrationBuilder.DropTable(
                 name: "Users");

@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using System;
 
 namespace PresentationTier.Views
 {
@@ -6,7 +7,9 @@ namespace PresentationTier.Views
     {
         public LoginView()
         {
+            Console.WriteLine("LoginView instantiated.");
             InitializeComponent();
         }
+
     }
 }

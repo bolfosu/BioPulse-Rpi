@@ -1,6 +1,7 @@
 ﻿using DataAccessLayer;
 using DataAccessLayer.Models;
 using DataAccessLayer.Repositories;
+using LogicLayer.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -9,21 +10,22 @@ using Xunit;
 
 namespace Tests
 {
-    public class TemperatureSensorRepoTest
+    public class UserManagementServiceTests
     {
         private readonly IServiceProvider _serviceProvider;
 
-        public TemperatureSensorRepoTest()
+        public UserManagementServiceTests()
         {
             // Set up DbContext with in-memory database for testing
             var serviceCollection = new ServiceCollection();
 
             serviceCollection.AddDbContext<AppDbContext>(options =>
-                options.UseInMemoryDatabase("TestDatabase"));
+                options.UseInMemoryDatabase("UserManagementTestDatabase"));
 
-            // Register repository using AppDbContext
-            serviceCollection.AddScoped<TemperatureSensorRepo>();
-            serviceCollection.AddScoped<IRepository<TemperatureSensor>, TemperatureSensorRepo>();
+            // Register repository and service
+            serviceCollection.AddScoped<UserRepo>();
+            serviceCollection.AddScoped<IRepository<User>, UserRepo>();
+            serviceCollection.AddScoped<UserManagementService>();
 
             _serviceProvider = serviceCollection.BuildServiceProvider();
         }
@@ -34,31 +36,122 @@ namespace Tests
         }
 
         [Fact]
-        public async Task CanAddTemperatureSensorToDatabase()
+        public async Task CanRegisterNewUser()
         {
             // Arrange
-            var repository = _serviceProvider.GetRequiredService<IRepository<TemperatureSensor>>();
+            var service = _serviceProvider.GetRequiredService<UserManagementService>();
 
-            var newSensor = new TemperatureSensor
-            {
-                Name = "Temp Sensor 1",
-                IsEnabled = true,
-                IsWireless = false,
-                LastReading = 22.5,
-                LastReadingTime = DateTime.Now,
-                Address = 1
-            };
+            var name = "Test User";
+            var email = "test@example.com";
+            var password = "password";
+            var securityQuestion = "What is your pet's name?";
+            var securityAnswer = "Fluffy";
 
-            // Act: Add the sensor to the database
-            await repository.AddAsync(newSensor);
+            // Act
+            var result = await service.RegisterAsync(name, email, password, securityQuestion, securityAnswer);
 
-            // Assert: Verify the sensor was added
+            // Assert
+            Assert.True(result);
+
             var dbContext = GetDbContext();
-            var addedSensor = await dbContext.TemperatureSensors.FirstOrDefaultAsync(s => s.Name == "Temp Sensor 1");
+            var addedUser = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
 
-            Assert.NotNull(addedSensor);
-            Assert.Equal("Temp Sensor 1", addedSensor.Name);
-            Assert.Equal(22.5, addedSensor.LastReading);
+            Assert.NotNull(addedUser);
+            Assert.Equal(name, addedUser.Name);
+            Assert.Equal(email, addedUser.Email);
+        }
+
+        [Fact]
+        public async Task CannotRegisterUserWithExistingEmail()
+        {
+            // Arrange
+            var service = _serviceProvider.GetRequiredService<UserManagementService>();
+
+            var email = "existinguser@example.com";
+            var dbContext = GetDbContext();
+
+            // Add an existing user to the database
+            await dbContext.Users.AddAsync(new User
+            {
+                Name = "Existing User",
+                Email = email,
+                PasswordHash = "hashedpassword",
+                SecurityQuestion = "What is your pet's name?",
+                SecurityAnswerHash = "hashedanswer"
+            });
+            await dbContext.SaveChangesAsync();
+
+            // Act
+            var result = await service.RegisterAsync(
+                "New User",
+                email,
+                "password",
+                "What is your favorite color?",
+                "Blue");
+
+            // Assert
+            Assert.False(result);
+        }
+
+        [Fact]
+        public async Task CanAuthenticateUserWithValidCredentials()
+        {
+            // Arrange
+            var service = _serviceProvider.GetRequiredService<UserManagementService>();
+            var email = "authuser@example.com";
+            var password = "password";
+
+            var passwordHash = HashPassword(password);
+
+            var dbContext = GetDbContext();
+            await dbContext.Users.AddAsync(new User
+            {
+                Name = "Auth User",
+                Email = email,
+                PasswordHash = passwordHash,
+                SecurityQuestion = "What is your pet's name?",
+                SecurityAnswerHash = "hashedanswer"
+            });
+            await dbContext.SaveChangesAsync();
+
+            // Act
+            var user = await service.AuthenticateAsync(email, password);
+
+            // Assert
+            Assert.NotNull(user);
+            Assert.Equal(email, user.Email);
+        }
+
+        [Fact]
+        public async Task CannotAuthenticateUserWithInvalidCredentials()
+        {
+            // Arrange
+            var service = _serviceProvider.GetRequiredService<UserManagementService>();
+            var email = "invaliduser@example.com";
+            var password = "wrongpassword";
+
+            var dbContext = GetDbContext();
+            await dbContext.Users.AddAsync(new User
+            {
+                Name = "Invalid User",
+                Email = email,
+                PasswordHash = HashPassword("correctpassword"),
+                SecurityQuestion = "What is your pet's name?",
+                SecurityAnswerHash = "hashedanswer"
+            });
+            await dbContext.SaveChangesAsync();
+
+            // Act & Assert
+            await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
+                service.AuthenticateAsync(email, password));
+        }
+
+        private string HashPassword(string input)
+        {
+            using var sha256 = System.Security.Cryptography.SHA256.Create();
+            var bytes = System.Text.Encoding.UTF8.GetBytes(input);
+            var hash = sha256.ComputeHash(bytes);
+            return Convert.ToBase64String(hash);
         }
     }
 }

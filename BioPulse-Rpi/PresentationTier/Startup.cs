@@ -1,28 +1,38 @@
 ﻿using DataAccessLayer.Repositories;
 using LogicLayer.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PresentationTier.ViewModels;
-using Microsoft.EntityFrameworkCore;
+using PresentationTier.Views;
+using System;
+using System.IO;
+using DataAccessLayer;
 
 public class Startup
 {
     public void ConfigureServices(IServiceCollection services)
     {
-        // Register DbContext
+        
+
+        // Add DbContext
         services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlite("Data Source=hydroponicsystem.db"));
+        options.UseSqlite("Data Source=hydroponicsystem.db"));
+
 
         // Register repositories
-        services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
         services.AddScoped<UserRepo>();
 
         // Register services
-        services.AddTransient<UserManagementService>();
+        services.AddSingleton<UserManagementService>();
 
         // Register ViewModels
         services.AddSingleton<MainWindowViewModel>();
         services.AddTransient<LoginViewModel>();
         services.AddTransient<RegistrationViewModel>();
-        services.AddTransient<MainViewModel>();
+
+        // Register MainWindow
+        services.AddSingleton<MainWindow>();
+       
+
     }
 }

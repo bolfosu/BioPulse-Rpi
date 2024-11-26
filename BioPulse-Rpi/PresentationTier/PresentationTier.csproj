@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
         <!-- Explicit settings to ensure Avalonia compatibility -->
@@ -16,26 +16,24 @@
     <ItemGroup>
         <!-- Avalonia dependencies -->
         <PackageReference Include="Avalonia" Version="11.2.1" />
+        <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.2.1" />
         <PackageReference Include="Avalonia.Desktop" Version="11.2.1" />
+        <PackageReference Include="Avalonia.ReactiveUI" Version="11.2.1" />
         <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.1" />
         <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.1" />
-        <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.0" />
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.2.1" />
-
-        <!-- Database and EF Core dependencies -->
-        <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="9.0.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">
+        <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="8.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
           <PrivateAssets>all</PrivateAssets>
         </PackageReference>
 
-        <!-- Dependency injection and hosting -->
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
+        <!-- Database and EF Core dependencies -->
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0" />
 
-        <!-- Optional dependencies (comment/remove if not needed) -->
-        <!-- If these are not required for runtime scripting or Roslyn-based features, remove them -->
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.11.0" />
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.11.0" />
+        <!-- Dependency injection and hosting -->
     </ItemGroup>
 
     <ItemGroup>
@@ -43,4 +41,10 @@
         <ProjectReference Include="..\DataAccessLayer\DataAccessLayer.csproj" />
         <ProjectReference Include="..\LogicLayer\LogicLayer.csproj" />
     </ItemGroup>
+
+    
+
+    
+    
+
 </Project>

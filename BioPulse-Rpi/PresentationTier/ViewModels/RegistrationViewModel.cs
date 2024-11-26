@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Reactive;
+using System.Threading.Tasks;
+using LogicLayer.Services;
 using ReactiveUI;
 
 namespace PresentationTier.ViewModels
@@ -52,28 +54,40 @@ namespace PresentationTier.ViewModels
         public ReactiveCommand<Unit, Unit> RegisterCommand { get; }
         public ReactiveCommand<Unit, Unit> NavigateToLoginCommand { get; }
 
-        // Action for navigation
         public Action NavigateToLogin { get; set; }
 
-        public RegistrationViewModel()
+        private readonly UserManagementService _userService;
+
+        public RegistrationViewModel(UserManagementService userService)
         {
-            // Commands
-            RegisterCommand = ReactiveCommand.Create(PerformRegistration);
+            _userService = userService;
+
+            RegisterCommand = ReactiveCommand.CreateFromTask(PerformRegistrationAsync);
             NavigateToLoginCommand = ReactiveCommand.Create(() => NavigateToLogin?.Invoke());
         }
 
-        private void PerformRegistration()
+        private async Task PerformRegistrationAsync()
         {
-            // Placeholder registration logic
+            Console.WriteLine("Register Command Triggered"); // Debug log
+
             if (string.IsNullOrEmpty(Name) || string.IsNullOrEmpty(Email) || string.IsNullOrEmpty(Password))
             {
                 ErrorMessage = "All fields are required.";
                 return;
             }
 
-            // Simulate successful registration
-            ErrorMessage = string.Empty;
-            NavigateToLogin?.Invoke();
+            try
+            {
+                await _userService.RegisterAsync(Name, Email, Password, SecurityQuestion, SecurityAnswer);
+                Console.WriteLine($"User {Name} registered successfully!");
+                ErrorMessage = string.Empty;
+                NavigateToLogin?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+                Console.WriteLine($"Registration failed: {ex.Message}");
+            }
         }
     }
 }

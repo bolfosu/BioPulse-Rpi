@@ -1,35 +1,94 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.ReactiveUI;
+﻿using System;
+using System.IO;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
+using DataAccessLayer;
+using Avalonia;
+using System.Linq;
+using Avalonia.ReactiveUI;
 
 namespace PresentationTier
 {
     internal class Program
     {
-        // Main entry point of the application
         [STAThread]
         public static void Main(string[] args)
         {
-            var host = CreateHostBuilder(args).Build();
+            try
+            {
+                Console.WriteLine("Starting application...");
 
-            // Start the Avalonia application
-            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+                // Test SQLite connection
+                using (var context = new AppDbContext(
+                    new DbContextOptionsBuilder<AppDbContext>()
+                        .UseSqlite("Data Source=hydroponicsystem.db")
+                        .Options))
+                {
+                    try
+                    {
+                        Console.WriteLine("Testing database connection...");
+
+                        // Log the full path of the database
+                        var dbPath = "hydroponicsystem.db";
+                        var fullPath = Path.GetFullPath(dbPath);
+                        Console.WriteLine($"Database file path: {fullPath}");
+
+                        // Test Users table existence
+                        var userCount = context.Users.Count();
+                        Console.WriteLine($"Users table exists. User count: {userCount}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error accessing Users table: {ex.Message}");
+                    }
+                }
+
+                Console.WriteLine("Application initialized successfully.");
+
+                // Start the Avalonia app
+                var host = CreateHostBuilder(args).Build();
+                BuildAvaloniaApp(host).StartWithClassicDesktopLifetime(args);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Critical error during startup: {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
+                throw;
+            }
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices((context, services) =>
                 {
-                    var startup = new Startup();
-                    startup.ConfigureServices(services); // Configure services
+                    try
+                    {
+                        var startup = new Startup();
+                        startup.ConfigureServices(services);
+                        Console.WriteLine("Services configured successfully.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error during service configuration: {ex.Message}");
+                        throw;
+                    }
                 });
 
-        public static AppBuilder BuildAvaloniaApp() =>
-            AppBuilder.Configure<App>()
-                .UsePlatformDetect()   // Ensure platform detection is enabled
-                .LogToTrace()           // Optional logging
-                .UseReactiveUI();       // Enable ReactiveUI if used
+        public static AppBuilder BuildAvaloniaApp(IHost host)
+        {
+            Console.WriteLine("Building Avalonia App...");
+            return AppBuilder.Configure(() =>
+            {
+                var app = new App
+                {
+                    ServiceProvider = host.Services
+                };
+                return app;
+            })
+            .UsePlatformDetect()
+            .LogToTrace()
+            .UseReactiveUI();
+        }
     }
 }
