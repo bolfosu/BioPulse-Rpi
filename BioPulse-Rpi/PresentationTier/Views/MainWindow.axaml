@@ -5,10 +5,7 @@
         Title="MainWindow">
 	<Grid>
 		<StackPanel>
-			<!-- Buttons to navigate between views -->
-			<Button Content="Show LoginView" Command="{Binding NavigateToLoginCommand}" />
-			<Button Content="Show RegistrationView" Command="{Binding NavigateToRegistrationCommand}" />
-			<Button Content="Show SimplePage" Command="{Binding NavigateToSimplePageCommand}" />
+
 
 			<!-- Placeholder for the current view -->
 			<ContentControl Content="{Binding CurrentView}" />

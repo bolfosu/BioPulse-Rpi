@@ -1,6 +1,5 @@
 ﻿using ReactiveUI;
 using System;
-using System.Reactive;
 
 namespace PresentationTier.ViewModels
 {
@@ -12,15 +11,13 @@ namespace PresentationTier.ViewModels
         {
             LoginViewModel = loginViewModel;
             RegistrationViewModel = registrationViewModel;
-            
 
-            // Default to LoginView
+            // Set navigation actions
+            LoginViewModel.NavigateToRegister = () => CurrentView = RegistrationViewModel;
+            RegistrationViewModel.NavigateToLogin = () => CurrentView = LoginViewModel;
+
+            // Default view
             CurrentView = LoginViewModel;
-
-            // Navigation Commands
-            NavigateToLoginCommand = ReactiveCommand.Create(() => { CurrentView = LoginViewModel; return Unit.Default; });
-            NavigateToRegistrationCommand = ReactiveCommand.Create(() => { CurrentView = RegistrationViewModel; return Unit.Default; });
-            
         }
 
         public LoginViewModel LoginViewModel { get; }
@@ -29,11 +26,22 @@ namespace PresentationTier.ViewModels
         public ReactiveObject CurrentView
         {
             get => _currentView;
-            set => this.RaiseAndSetIfChanged(ref _currentView, value);
+            set
+            {
+                Console.WriteLine($"Navigating to: {value.GetType().Name}");
+                this.RaiseAndSetIfChanged(ref _currentView, value);
+            }
         }
 
-        public ReactiveCommand<Unit, Unit> NavigateToLoginCommand { get; }
-        public ReactiveCommand<Unit, Unit> NavigateToRegistrationCommand { get; }
-        public ReactiveCommand<Unit, Unit> NavigateToSimplePageCommand { get; }
+        // Methods to navigate between views
+        public void NavigateToLoginView()
+        {
+            CurrentView = LoginViewModel;
+        }
+
+        public void NavigateToRegistrationView()
+        {
+            CurrentView = RegistrationViewModel;
+        }
     }
 }

@@ -5,8 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using DataAccessLayer;
 using Avalonia;
-using System.Linq;
 using Avalonia.ReactiveUI;
+using System.Linq;
 
 namespace PresentationTier
 {
@@ -19,10 +19,14 @@ namespace PresentationTier
             {
                 Console.WriteLine("Starting application...");
 
+                // Get the database path relative to the DataAccessLayer directory
+                var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\DataAccessLayer\hydroponicsystem.db");
+                var fullPath = Path.GetFullPath(dbPath);
+
                 // Apply migrations
                 using (var context = new AppDbContext(
                     new DbContextOptionsBuilder<AppDbContext>()
-                        .UseSqlite("Data Source=hydroponicsystem.db")
+                        .UseSqlite($"Data Source={fullPath}")
                         .Options))
                 {
                     Console.WriteLine("Applying migrations...");
@@ -33,7 +37,7 @@ namespace PresentationTier
                 // Test database connection
                 using (var context = new AppDbContext(
                     new DbContextOptionsBuilder<AppDbContext>()
-                        .UseSqlite("Data Source=hydroponicsystem.db")
+                        .UseSqlite($"Data Source={fullPath}")
                         .Options))
                 {
                     try

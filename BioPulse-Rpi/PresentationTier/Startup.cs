@@ -12,14 +12,18 @@ public class Startup
 {
     public void ConfigureServices(IServiceCollection services)
     {
+        // Get the database path relative to the DataAccessLayer directory
+        var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\DataAccessLayer\hydroponicsystem.db");
+        var fullPath = Path.GetFullPath(dbPath);
 
-
-        
+        // Log the database path
+        Console.WriteLine($"[Startup] Database file path: {fullPath}");
 
         // Add DbContext
         services.AddDbContext<AppDbContext>(options =>
-        options.UseSqlite("Data Source=hydroponicsystem.db"));
+            options.UseSqlite($"Data Source={fullPath}"));
 
+        // Register views
         services.AddSingleton<MainWindow>();
         services.AddSingleton<MainWindowViewModel>();
 
@@ -32,9 +36,5 @@ public class Startup
         // Register ViewModels
         services.AddTransient<LoginViewModel>();
         services.AddTransient<RegistrationViewModel>();
-
-       
-       
-
     }
 }
