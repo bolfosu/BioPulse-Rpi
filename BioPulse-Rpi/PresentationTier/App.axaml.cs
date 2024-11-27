@@ -21,7 +21,7 @@ namespace PresentationTier
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                // Ensure ServiceProvider is not null
+                // Ensure ServiceProvider is initialized
                 if (ServiceProvider == null)
                 {
                     throw new InvalidOperationException("ServiceProvider is not initialized.");
@@ -31,8 +31,10 @@ namespace PresentationTier
                 var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
                 var mainWindowViewModel = ServiceProvider.GetRequiredService<MainWindowViewModel>();
 
-                // Set DataContext and assign the MainWindow
+                // Assign the ViewModel to the MainWindow's DataContext
                 mainWindow.DataContext = mainWindowViewModel;
+
+                // Set the MainWindow
                 desktop.MainWindow = mainWindow;
             }
 

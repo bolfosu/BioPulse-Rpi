@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using System;
+using System.IO;
 
 namespace DataAccessLayer
 {
@@ -8,7 +10,16 @@ namespace DataAccessLayer
         public AppDbContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-            optionsBuilder.UseSqlite("Data Source=hydroponicsystem.db");
+
+            // Use the same database file path as in AppDbContext
+            var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\DataAccessLayer\hydroponicsystem.db");
+            var fullPath = Path.GetFullPath(dbPath);
+
+            optionsBuilder.UseSqlite($"Data Source={fullPath}");
+
+            // Log the database path for debugging purposes
+            Console.WriteLine($"[DesignTimeDbContextFactory] Database file path: {fullPath}");
+
             return new AppDbContext(optionsBuilder.Options);
         }
     }

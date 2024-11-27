@@ -1,5 +1,6 @@
 ﻿using DataAccessLayer.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 public class AppDbContext : DbContext
 {
@@ -20,12 +21,24 @@ public class AppDbContext : DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
-            var dbPath = "hydroponicsystem.db";
-            optionsBuilder.UseSqlite($"Data Source={dbPath}");
-
-            // Log the full path of the database
+            // Use the database file in the DataAccessLayer directory
+            var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\DataAccessLayer\hydroponicsystem.db");
             var fullPath = Path.GetFullPath(dbPath);
-            Console.WriteLine($"Database file path: {fullPath}");
+
+            optionsBuilder.UseSqlite($"Data Source={fullPath}");
+
+            // Log the database path for debugging purposes
+            Console.WriteLine($"[AppDbContext] Database file path: {fullPath}");
         }
     }
+
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        Console.WriteLine("Saving changes to database...");
+        var result = await base.SaveChangesAsync(cancellationToken);
+        Console.WriteLine($"Changes saved: {result} row(s) affected.");
+        return result;
+    }
+
 }

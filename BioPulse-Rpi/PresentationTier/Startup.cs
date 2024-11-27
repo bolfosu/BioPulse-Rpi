@@ -12,12 +12,16 @@ public class Startup
 {
     public void ConfigureServices(IServiceCollection services)
     {
+
+
         
 
         // Add DbContext
         services.AddDbContext<AppDbContext>(options =>
         options.UseSqlite("Data Source=hydroponicsystem.db"));
 
+        services.AddSingleton<MainWindow>();
+        services.AddSingleton<MainWindowViewModel>();
 
         // Register repositories
         services.AddScoped<UserRepo>();
@@ -26,12 +30,10 @@ public class Startup
         services.AddSingleton<UserManagementService>();
 
         // Register ViewModels
-        services.AddSingleton<MainWindowViewModel>();
         services.AddTransient<LoginViewModel>();
         services.AddTransient<RegistrationViewModel>();
 
-        // Register MainWindow
-        services.AddSingleton<MainWindow>();
+       
        
 
     }

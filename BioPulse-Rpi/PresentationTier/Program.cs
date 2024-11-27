@@ -19,7 +19,18 @@ namespace PresentationTier
             {
                 Console.WriteLine("Starting application...");
 
-                // Test SQLite connection
+                // Apply migrations
+                using (var context = new AppDbContext(
+                    new DbContextOptionsBuilder<AppDbContext>()
+                        .UseSqlite("Data Source=hydroponicsystem.db")
+                        .Options))
+                {
+                    Console.WriteLine("Applying migrations...");
+                    context.Database.Migrate();
+                    Console.WriteLine("Migrations applied successfully.");
+                }
+
+                // Test database connection
                 using (var context = new AppDbContext(
                     new DbContextOptionsBuilder<AppDbContext>()
                         .UseSqlite("Data Source=hydroponicsystem.db")
@@ -27,20 +38,12 @@ namespace PresentationTier
                 {
                     try
                     {
-                        Console.WriteLine("Testing database connection...");
-
-                        // Log the full path of the database
-                        var dbPath = "hydroponicsystem.db";
-                        var fullPath = Path.GetFullPath(dbPath);
-                        Console.WriteLine($"Database file path: {fullPath}");
-
-                        // Test Users table existence
                         var userCount = context.Users.Count();
                         Console.WriteLine($"Users table exists. User count: {userCount}");
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Error accessing Users table: {ex.Message}");
+                        Console.WriteLine($"Error testing database: {ex.Message}");
                     }
                 }
 
@@ -54,7 +57,6 @@ namespace PresentationTier
             {
                 Console.WriteLine($"Critical error during startup: {ex.Message}");
                 Console.WriteLine(ex.StackTrace);
-                throw;
             }
         }
 
@@ -62,33 +64,18 @@ namespace PresentationTier
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices((context, services) =>
                 {
-                    try
-                    {
-                        var startup = new Startup();
-                        startup.ConfigureServices(services);
-                        Console.WriteLine("Services configured successfully.");
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error during service configuration: {ex.Message}");
-                        throw;
-                    }
+                    var startup = new Startup();
+                    startup.ConfigureServices(services);
                 });
 
-        public static AppBuilder BuildAvaloniaApp(IHost host)
-        {
-            Console.WriteLine("Building Avalonia App...");
-            return AppBuilder.Configure(() =>
+        public static AppBuilder BuildAvaloniaApp(IHost host) =>
+            AppBuilder.Configure(() =>
             {
-                var app = new App
-                {
-                    ServiceProvider = host.Services
-                };
+                var app = new App { ServiceProvider = host.Services };
                 return app;
             })
             .UsePlatformDetect()
             .LogToTrace()
             .UseReactiveUI();
-        }
     }
 }

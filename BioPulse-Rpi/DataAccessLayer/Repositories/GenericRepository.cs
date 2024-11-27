@@ -1,22 +1,22 @@
-﻿
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+
 namespace DataAccessLayer.Repositories
 {
     public class GenericRepository<T> : IRepository<T> where T : class
     {
-        private readonly AppDbContext _context; // Use AppDbContext directly
+        private readonly AppDbContext _context;
         private readonly DbSet<T> _dbSet;
 
-        public GenericRepository(AppDbContext context) // Change type to AppDbContext
+        public GenericRepository(AppDbContext context)
         {
             _context = context;
             _dbSet = _context.Set<T>();
+
+            // Log the database connection string for debugging purposes
+            Console.WriteLine($"[GenericRepository] Database Connection String: {_context.Database.GetDbConnection().ConnectionString}");
         }
 
-        public DbSet<T> GetDbSet()
-        {
-            return _dbSet;
-        }
+        public DbSet<T> GetDbSet() => _dbSet;
 
         public async Task<T> GetByIdAsync(int id)
         {
