@@ -33,9 +33,11 @@ namespace PresentationTier.ViewModels
         public ReactiveCommand<Unit, Unit> LoginCommand { get; }
         public ReactiveCommand<Unit, Unit> NavigateToRegisterCommand { get; }
         public ReactiveCommand<Unit, Unit> GuestModeCommand { get; }
+        public ReactiveCommand<Unit, Unit> NavigateToPasswordRecoveryCommand { get; }
 
         public Action NavigateToRegister { get; set; }
         public Action EnterGuestMode { get; set; } // Action for guest mode
+        public Action NavigateToPasswordRecovery { get; set; } // Action for password recovery
 
         private readonly UserManagementService _userService;
 
@@ -46,6 +48,14 @@ namespace PresentationTier.ViewModels
             LoginCommand = ReactiveCommand.CreateFromTask(PerformLoginAsync);
             NavigateToRegisterCommand = ReactiveCommand.Create(() => NavigateToRegister?.Invoke());
             GuestModeCommand = ReactiveCommand.Create(() => EnterGuestMode?.Invoke());
+            NavigateToPasswordRecoveryCommand = ReactiveCommand.Create(() => NavigateToPasswordRecovery?.Invoke());
+        }
+
+        public void ResetFields()
+        {
+            Email = string.Empty;
+            Password = string.Empty;
+            ErrorMessage = string.Empty;
         }
 
         private async Task PerformLoginAsync()

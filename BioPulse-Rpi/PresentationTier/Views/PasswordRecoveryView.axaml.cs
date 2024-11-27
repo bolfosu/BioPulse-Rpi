@@ -2,12 +2,18 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace PresentationTier;
-
-public partial class PasswordRecoveryView : UserControl
+namespace PresentationTier.Views
 {
-    public PasswordRecoveryView()
+    public partial class PasswordRecoveryView : UserControl
     {
-        InitializeComponent();
+        public PasswordRecoveryView()
+        {
+            InitializeComponent();
+        }
+
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
+        }
     }
 }

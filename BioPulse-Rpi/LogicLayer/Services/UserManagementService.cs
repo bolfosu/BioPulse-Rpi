@@ -72,6 +72,30 @@ namespace LogicLayer.Services
             return user;
         }
 
+        public async Task RecoverPasswordAsync(string email, string securityQuestion, string securityAnswer, string newPassword)
+        {
+            var user = await _userRepo.GetByEmailAsync(email);
+
+            if (user == null)
+                throw new InvalidOperationException("Email not found.");
+
+            if (user.SecurityQuestion != securityQuestion || user.SecurityAnswerHash != HashString(securityAnswer))
+                throw new UnauthorizedAccessException("Security question or answer is incorrect.");
+
+            user.PasswordHash = HashString(newPassword);
+            await _userRepo.UpdateAsync(user);
+        }
+
+        public async Task<string?> GetSecurityQuestionAsync(string email)
+        {
+            var user = await _userRepo.GetByEmailAsync(email);
+            if (user == null)
+                return null; // User not found
+
+            return user.SecurityQuestion;
+        }
+
+
         /// <summary>
         /// Hashes a given string using SHA256.
         /// </summary>

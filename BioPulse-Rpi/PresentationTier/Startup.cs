@@ -36,5 +36,7 @@ public class Startup
         // Register ViewModels
         services.AddTransient<LoginViewModel>();
         services.AddTransient<RegistrationViewModel>();
+        services.AddTransient<PasswordRecoveryViewModel>();
+
     }
 }

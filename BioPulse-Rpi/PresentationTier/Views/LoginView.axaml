@@ -4,6 +4,8 @@
 	<Grid Margin="20">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
+			<!-- BioPulse Header -->
+			<RowDefinition Height="Auto" />
 			<!-- Top row for buttons -->
 			<RowDefinition Height="*" />
 			<!-- Main content -->
@@ -14,14 +16,23 @@
 			<!-- Fill space -->
 		</Grid.ColumnDefinitions>
 
+		<!-- BioPulse Header -->
+		<TextBlock Text="BioPulse"
+                   FontSize="24"
+                   FontWeight="Bold"
+                   Foreground="Blue"
+                   HorizontalAlignment="Center"
+                   Grid.Row="0"
+                   Margin="0,0,0,20" />
+
 		<!-- Top-right corner buttons -->
-		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0" Margin="0,0,0,10">
+		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="1" Margin="0,0,0,10">
 			<Button Content="Register" Command="{Binding NavigateToRegisterCommand}" Margin="0,0,10,0" />
 			<Button Content="Guest Mode" Command="{Binding GuestModeCommand}" />
 		</StackPanel>
 
 		<!-- Main content -->
-		<StackPanel Grid.Row="1">
+		<StackPanel Grid.Row="2">
 			<TextBlock Text="Login" FontSize="20" FontWeight="Bold" Margin="0,0,0,20" />
 
 			<!-- Email Input -->

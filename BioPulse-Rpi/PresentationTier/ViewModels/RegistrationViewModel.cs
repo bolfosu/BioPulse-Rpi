@@ -65,6 +65,15 @@ namespace PresentationTier.ViewModels
             RegisterCommand = ReactiveCommand.CreateFromTask(PerformRegistrationAsync);
             NavigateToLoginCommand = ReactiveCommand.Create(() => NavigateToLogin?.Invoke());
         }
+        public void ResetFields()
+        {
+            Name = string.Empty;
+            Email = string.Empty;
+            Password = string.Empty;
+            SecurityQuestion = string.Empty;
+            SecurityAnswer = string.Empty;
+            ErrorMessage = string.Empty;
+        }
 
         private async Task PerformRegistrationAsync()
         {
