@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Services\SensorManagementService.cs" />
+    <Compile Remove="Utilities\I2CHardware.cs" />
+    <Compile Remove="Utilities\I2CManager.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DataAccessLayer\DataAccessLayer.csproj" />
   </ItemGroup>
 

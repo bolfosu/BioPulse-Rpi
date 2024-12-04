@@ -1,5 +1,6 @@
 ﻿using DataAccessLayer.Models;
 using DataAccessLayer.Repositories;
+using LogicLayer.Utilities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -14,19 +15,90 @@ namespace LogicLayer
         private readonly EcSensorRepo _ecSensorRepo;
         private readonly PhSensorRepo _phSensorRepo;
         private readonly LightSensorRepo _lightSensorRepo;
+        // I2C Manager for handling hardware-level interactions
+        private readonly I2CManager _i2cManager;
 
         public SensorManagementService(
             TemperatureSensorRepo temperatureSensorRepo,
             EcSensorRepo ecSensorRepo,
             PhSensorRepo phSensorRepo,
-            LightSensorRepo lightSensorRepo)
+            LightSensorRepo lightSensorRepo,
+            I2CManager i2cManager)
         {
             _temperatureSensorRepo = temperatureSensorRepo;
             _ecSensorRepo = ecSensorRepo;
             _phSensorRepo = phSensorRepo;
             _lightSensorRepo = lightSensorRepo;
+            _i2cManager = i2cManager;
         }
 
+        public async Task<double> ReadTemperatureSensorAsync(int sensorId)
+        {
+            // Fetch the sensor from the repository
+            var sensor = await _temperatureSensorRepo.GetByIdAsync(sensorId);
+            if (sensor == null || !sensor.IsEnabled)
+                throw new InvalidOperationException("Sensor not found or disabled.");
+
+            // Read the sensor's value via I2C
+            var reading = _i2cManager.ReadByte(1, sensor.Address, 0x00); // Adjust register as per sensor specification
+            if (reading.HasValue)
+            {
+                // Update the sensor's reading in the database
+                sensor.LastReading = reading.Value;
+                sensor.LastReadingTime = DateTime.Now;
+                await _temperatureSensorRepo.UpdateAsync(sensor);
+                return sensor.LastReading;
+            }
+
+            throw new Exception("Failed to read temperature sensor data.");
+        }
+
+
+
+        /// <summary>
+        /// Controls actuators based on the sensor data and thresholds defined in the plant profile.
+        /// </summary>
+        /// <param name="profileId">The ID of the plant profile containing thresholds.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        public async Task ControlActuatorsAsync(int profileId)
+        {
+            // Fetch plant profile thresholds (Replace this method with actual implementation)
+            var profile = GetPlantProfile(profileId);
+
+            // Retrieve all enabled temperature sensors
+            var sensors = await _temperatureSensorRepo.GetAllAsync();
+
+            foreach (var sensor in sensors.Where(s => s.IsEnabled))
+            {
+                // Compare sensor readings with profile thresholds and activate actuators
+                if (sensor.LastReading > profile.MaxTemperatureThreshold)
+                {
+                    // Turn on cooling actuator (e.g., fan)
+                    _i2cManager.WriteByte(1, sensor.Address, 0x01, 0x00); // Register and value depend on actuator
+                }
+                else if (sensor.LastReading < profile.MinTemperatureThreshold)
+                {
+                    // Turn on heating actuator
+                    _i2cManager.WriteByte(1, sensor.Address, 0x01, 0x01); // Register and value depend on actuator
+                }
+            }
+        }
+
+        /// <summary>
+        /// A placeholder method for fetching plant profile thresholds.
+        /// Replace this with actual implementation to retrieve thresholds from the database.
+        /// </summary>
+        /// <param name="profileId">The ID of the plant profile.</param>
+        /// <returns>A dynamic object containing threshold values.</returns>
+        private dynamic GetPlantProfile(int profileId)
+        {
+            // Example of static thresholds
+            return new
+            {
+                MaxTemperatureThreshold = 30.0,
+                MinTemperatureThreshold = 20.0
+            };
+        }
         // CRUD Operations for Temperature Sensor
         public async Task<TemperatureSensor> AddTemperatureSensorAsync(TemperatureSensor sensor)
         {

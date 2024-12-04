@@ -2,7 +2,7 @@
 
 namespace DataAccessLayer.Models
 {
-    public abstract class BaseSensor
+    public abstract class Sensor
     {
         public int Id { get; set; }
         public string Name { get; set; }
