@@ -18,16 +18,27 @@ public class AppDbContext : DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
-            // Use the database file in the DataAccessLayer directory
-            var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\DataAccessLayer\hydroponicsystem.db");
+            // Use relative path to point to the database file
+            var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"C:\Users\mobo\source\repos\BioPulse-Rpi\BioPulse-Rpi\DataAccessLayer\hydroponicsystem.db");
             var fullPath = Path.GetFullPath(dbPath);
 
+            // Ensure the directory exists
+            var directory = Path.GetDirectoryName(fullPath);
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            // Configure SQLite database with the resolved path
             optionsBuilder.UseSqlite($"Data Source={fullPath}");
 
-            // Log the database path for debugging purposes
+            // Log for debugging purposes
             Console.WriteLine($"[AppDbContext] Database file path: {fullPath}");
         }
     }
+
+
+
 
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
