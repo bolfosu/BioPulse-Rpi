@@ -45,8 +45,8 @@ namespace Tests
                 TemperatureMax = 26.0,
                 LightOnTime = new TimeSpan(6, 0, 0),
                 LightOffTime = new TimeSpan(18, 0, 0),
-                LuxMin = 5000,
-                LuxMax = 70000,
+                LightMin = 5000,
+                LightMax = 70000,
                 EcMin = 1.5,
                 EcMax = 2.5
             };
@@ -74,8 +74,8 @@ namespace Tests
                 TemperatureMax = 22.0,
                 LightOnTime = new TimeSpan(7, 0, 0),
                 LightOffTime = new TimeSpan(19, 0, 0),
-                LuxMin = 8000,
-                LuxMax = 60000,
+                LightMin = 8000,
+                LightMax = 60000,
                 EcMin = 1.0,
                 EcMax = 2.0
             };
@@ -83,13 +83,13 @@ namespace Tests
 
             // Act
             plantProfile.IsDefault = false;
-            plantProfile.LuxMax = 65000;
+            plantProfile.LightMax = 65000;
             await _plantProfileRepo.UpdateAsync(plantProfile);
             var result = await _plantProfileRepo.GetByIdAsync(plantProfile.Id);
 
             // Assert
             Assert.False(result.IsDefault);
-            Assert.Equal(65000, result.LuxMax);
+            Assert.Equal(65000, result.LightMax);
         }
 
         [Fact]
@@ -106,8 +106,8 @@ namespace Tests
                 TemperatureMax = 28.0,
                 LightOnTime = new TimeSpan(5, 0, 0),
                 LightOffTime = new TimeSpan(17, 0, 0),
-                LuxMin = 4000,
-                LuxMax = 60000,
+                LightMin = 4000,
+                LightMax = 60000,
                 EcMin = 1.2,
                 EcMax = 2.2
             };
@@ -135,8 +135,8 @@ namespace Tests
                 TemperatureMax = 24.0,
                 LightOnTime = new TimeSpan(6, 0, 0),
                 LightOffTime = new TimeSpan(18, 0, 0),
-                LuxMin = 3000,
-                LuxMax = 50000,
+                LightMin = 3000,
+                LightMax = 50000,
                 EcMin = 1.0,
                 EcMax = 2.0
             };
@@ -151,8 +151,8 @@ namespace Tests
                 TemperatureMax = 30.0,
                 LightOnTime = new TimeSpan(7, 0, 0),
                 LightOffTime = new TimeSpan(19, 0, 0),
-                LuxMin = 5000,
-                LuxMax = 70000,
+                LightMin = 5000,
+                LightMax = 70000,
                 EcMin = 1.5,
                 EcMax = 2.5
             };

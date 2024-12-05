@@ -1,12 +1,10 @@
-﻿using System;
-using System.IO;
-using Microsoft.EntityFrameworkCore;
+﻿using Avalonia;
+using Avalonia.ReactiveUI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using DataAccessLayer;
-using Avalonia;
-using Avalonia.ReactiveUI;
+using System;
 using System.Linq;
+using System.Threading;
 
 namespace PresentationTier
 {
@@ -17,69 +15,52 @@ namespace PresentationTier
         {
             try
             {
-                Console.WriteLine("Starting application...");
+                Console.WriteLine("Starting Avalonia application...");
 
-                // Get the database path relative to the DataAccessLayer directory
-                var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\DataAccessLayer\hydroponicsystem.db");
-                var fullPath = Path.GetFullPath(dbPath);
-
-                // Apply migrations
-                using (var context = new AppDbContext(
-                    new DbContextOptionsBuilder<AppDbContext>()
-                        .UseSqlite($"Data Source={fullPath}")
-                        .Options))
-                {
-                    Console.WriteLine("Applying migrations...");
-                    context.Database.Migrate();
-                    Console.WriteLine("Migrations applied successfully.");
-                }
-
-                // Test database connection
-                using (var context = new AppDbContext(
-                    new DbContextOptionsBuilder<AppDbContext>()
-                        .UseSqlite($"Data Source={fullPath}")
-                        .Options))
-                {
-                    try
-                    {
-                        var userCount = context.Users.Count();
-                        Console.WriteLine($"Users table exists. User count: {userCount}");
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error testing database: {ex.Message}");
-                    }
-                }
-
-                Console.WriteLine("Application initialized successfully.");
-
-                // Start the Avalonia app
                 var host = CreateHostBuilder(args).Build();
-                BuildAvaloniaApp(host).StartWithClassicDesktopLifetime(args);
+                var appBuilder = BuildAvaloniaApp(host);
+
+                if (args.Contains("--drm")) // If running on Raspberry Pi framebuffer
+                {
+                    SilenceConsole();
+                    appBuilder.StartLinuxDrm(args: args, card: null, scaling: 1.0);
+                }
+                else
+                {
+                    appBuilder.StartWithClassicDesktopLifetime(args);
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Critical error during startup: {ex.Message}");
+                Console.WriteLine($"Application failed to start: {ex.Message}");
                 Console.WriteLine(ex.StackTrace);
             }
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureServices((context, services) =>
+                .ConfigureServices((_, services) =>
                 {
                     var startup = new Startup();
                     startup.ConfigureServices(services);
                 });
 
         public static AppBuilder BuildAvaloniaApp(IHost host) =>
-            AppBuilder.Configure(() =>
+            AppBuilder.Configure<App>()
+                      .UsePlatformDetect()
+                      .LogToTrace()
+                      .UseReactiveUI()
+                      .AfterSetup(_ => { ((App)Application.Current).ServiceProvider = host.Services; });
+
+        private static void SilenceConsole()
+        {
+            new Thread(() =>
             {
-                var app = new App { ServiceProvider = host.Services };
-                return app;
+                Console.CursorVisible = false;
+                while (true)
+                    Console.ReadKey(true);
             })
-            .UsePlatformDetect()
-            .LogToTrace()
-            .UseReactiveUI();
+            { IsBackground = true }.Start();
+        }
     }
 }

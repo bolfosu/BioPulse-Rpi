@@ -1,7 +1,9 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:PresentationTier.ViewModels"
-        x:Class="PresentationTier.Views.MainWindow">
+        x:Class="PresentationTier.Views.MainWindow"
+        Title="BioPulse App"
+        DataContext="{DynamicResource MainWindowViewModel}">
 	<Grid>
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="200" />
@@ -10,11 +12,11 @@
 
 		<!-- Navigation Panel -->
 		<StackPanel Grid.Column="0" Background="LightGray" IsVisible="{Binding IsAuthenticated}">
-    <Button Content="Dashboard" Command="{Binding NavigateToDashboardCommand}" Margin="10" />
-    <Button Content="Plant Profile" Command="{Binding NavigateToPlantProfileCommand}" Margin="10" />
-    <Button Content="Device Settings" Command="{Binding NavigateToDeviceSettingsCommand}" Margin="10" />
-    <Button Content="User Settings" Command="{Binding NavigateToUserSettingsCommand}" Margin="10" />
-</StackPanel>
+			<Button Content="Dashboard" Command="{Binding NavigateToDashboardCommand}" Margin="10" />
+			<Button Content="Plant Profile" Command="{Binding NavigateToPlantProfileCommand}" Margin="10" />
+			<Button Content="Device Settings" Command="{Binding NavigateToDeviceSettingsCommand}" Margin="10" />
+			<Button Content="User Settings" Command="{Binding NavigateToUserSettingsCommand}" Margin="10" />
+		</StackPanel>
 
 		<!-- Main Content -->
 		<ContentControl Grid.Column="1" Content="{Binding CurrentView}" />

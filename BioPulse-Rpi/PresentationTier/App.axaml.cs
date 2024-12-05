@@ -8,7 +8,7 @@ using System;
 
 namespace PresentationTier
 {
-    public partial class App : Application
+    public class App : Application
     {
         public IServiceProvider ServiceProvider { get; set; }
 
@@ -19,23 +19,15 @@ namespace PresentationTier
 
         public override void OnFrameworkInitializationCompleted()
         {
-            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
             {
-                // Ensure ServiceProvider is initialized
-                if (ServiceProvider == null)
-                {
-                    throw new InvalidOperationException("ServiceProvider is not initialized.");
-                }
-
-                // Retrieve MainWindow and its ViewModel from ServiceProvider
                 var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
-                var mainWindowViewModel = ServiceProvider.GetRequiredService<MainWindowViewModel>();
-
-                // Assign the ViewModel to the MainWindow's DataContext
-                mainWindow.DataContext = mainWindowViewModel;
-
-                // Set the MainWindow
-                desktop.MainWindow = mainWindow;
+                mainWindow.DataContext = ServiceProvider.GetRequiredService<MainWindowViewModel>();
+                desktopLifetime.MainWindow = mainWindow;
+            }
+            else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewLifetime)
+            {
+                singleViewLifetime.MainView = ServiceProvider.GetRequiredService<MainSingleView>();
             }
 
             base.OnFrameworkInitializationCompleted();

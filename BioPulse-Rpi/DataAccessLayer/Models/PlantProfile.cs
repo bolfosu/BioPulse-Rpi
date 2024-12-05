@@ -13,8 +13,8 @@ namespace DataAccessLayer.Models
         public double TemperatureMax { get; set; }
         public TimeSpan LightOnTime { get; set; } 
         public TimeSpan LightOffTime { get; set; }
-        public double LuxMin { get; set; }
-        public double LuxMax { get; set; }
+        public double LightMin { get; set; }
+        public double LightMax { get; set; }
         public double EcMin { get; set; }
         public double EcMax { get; set; }
     }

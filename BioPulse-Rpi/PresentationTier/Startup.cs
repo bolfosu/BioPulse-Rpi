@@ -7,6 +7,7 @@ using PresentationTier.Views;
 using System;
 using System.IO;
 using DataAccessLayer;
+using DataAccessLayer.Models;
 
 public class Startup
 {
@@ -33,15 +34,19 @@ public class Startup
         services.AddSingleton<PlantProfileViewModel>();
         services.AddTransient<PlantProfileView>();
 
+
         // Register New Profile components
         services.AddTransient<NewPlantProfileView>();
         services.AddTransient<NewPlantProfileViewModel>();
 
         // Register repositories
         services.AddScoped<UserRepo>();
+        services.AddScoped<IRepository<PlantProfile>, PlantProfileRepo>();
+        services.AddScoped<IRepository<Sensor>, GenericRepository<Sensor>>();
 
         // Register services
         services.AddSingleton<UserManagementService>();
+        services.AddSingleton<PlantProfileService>();
 
         // Register ViewModels
         services.AddTransient<LoginViewModel>();

@@ -1,40 +1,39 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d"
-             d:DesignWidth="800" d:DesignHeight="600"
              x:Class="PresentationTier.Views.PlantProfileView">
 	<Grid>
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="*" />
-		</Grid.RowDefinitions>
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="250" />
 			<ColumnDefinition Width="*" />
 		</Grid.ColumnDefinitions>
 
 		<!-- List of Plant Profiles -->
-		<StackPanel Grid.Row="0" Grid.Column="0" Background="LightGray" Margin="5" Spacing="10">
-			<TextBlock Text="Plant Profiles" Margin="10" FontWeight="Bold" />
+		<StackPanel Grid.Column="0" Background="LightGray" Margin="10" Spacing="10">
+			<TextBlock Text="Plant Profiles" FontWeight="Bold" Margin="10" />
+
+			<!-- Predefined Profile Buttons -->
+			<WrapPanel Orientation="Horizontal" Margin="10">
+				<Button Content="Cabbage" Command="{Binding SelectPredefinedProfileCommand}" CommandParameter="Cabbage" Margin="5" />
+				<Button Content="Salad" Command="{Binding SelectPredefinedProfileCommand}" CommandParameter="Salad" Margin="5" />
+				<Button Content="Cucumber" Command="{Binding SelectPredefinedProfileCommand}" CommandParameter="Cucumber" Margin="5" />
+				<Button Content="Tomato" Command="{Binding SelectPredefinedProfileCommand}" CommandParameter="Tomato" Margin="5" />
+			</WrapPanel>
+
+			<!-- User Profiles -->
 			<ListBox ItemsSource="{Binding Profiles}"
                      SelectedItem="{Binding SelectedProfile}"
                      SelectionMode="Single">
 				<ListBox.ItemTemplate>
 					<DataTemplate>
-						<Button Content="{Binding}"
-                                Command="{Binding DataContext.SelectProfileCommand, 
-                                RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                                CommandParameter="{Binding}" />
+						<TextBlock Text="{Binding Name}" />
 					</DataTemplate>
 				</ListBox.ItemTemplate>
 			</ListBox>
-			<Button Content="Create New Profile" Command="{Binding NavigateToCreateProfileCommand}" Margin="10" />
+			<Button Content="Create New Profile" Command="{Binding CreateNewProfileCommand}" Margin="10" />
 		</StackPanel>
 
-		<!-- Main Profile Content -->
-		<StackPanel Grid.Row="0" Grid.Column="1" Margin="10" Spacing="15">
+		<!-- Profile Details -->
+		<StackPanel Grid.Column="1" Margin="10" Spacing="10">
 			<TextBlock Text="pH Range" FontWeight="Bold" />
 			<StackPanel Orientation="Horizontal" Spacing="10">
 				<TextBox Watermark="Min" Text="{Binding PhMin}" Width="100" />
@@ -59,10 +58,10 @@
 				<TextBox Watermark="Max" Text="{Binding LightMax}" Width="100" />
 			</StackPanel>
 
-			<!-- Save and Activate Buttons -->
-			<StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Spacing="20" Margin="5">
-				<Button Content="Save" Command="{Binding SaveCommand}" Width="100" />
-				<Button Content="Activate" Command="{Binding ActivateCommand}" Width="100" />
+			<!-- Buttons -->
+			<StackPanel Orientation="Horizontal" Spacing="10">
+				<Button Content="Save" Command="{Binding SaveProfileCommand}" />
+				<Button Content="Activate" Command="{Binding ActivateProfileCommand}" />
 			</StackPanel>
 		</StackPanel>
 	</Grid>
