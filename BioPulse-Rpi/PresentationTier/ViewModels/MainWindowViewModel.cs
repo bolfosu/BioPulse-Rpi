@@ -1,4 +1,5 @@
 ﻿using ReactiveUI;
+using System.Reactive;
 
 namespace PresentationTier.ViewModels
 {
@@ -16,7 +17,7 @@ namespace PresentationTier.ViewModels
             DeviceSettingsViewModel deviceSettingsViewModel,
             UserSettingsViewModel userSettingsViewModel)
         {
-            // Assign view models to properties
+            // Assign view models
             LoginViewModel = loginViewModel;
             RegistrationViewModel = registrationViewModel;
             PasswordRecoveryViewModel = passwordRecoveryViewModel;
@@ -25,20 +26,29 @@ namespace PresentationTier.ViewModels
             DeviceSettingsViewModel = deviceSettingsViewModel;
             UserSettingsViewModel = userSettingsViewModel;
 
-            // Default view is the login page
+            // Default view
             CurrentView = LoginViewModel;
 
-            // Hook up navigation actions in LoginViewModel
+            // Bind navigation actions
             LoginViewModel.NavigateToRegister = () => CurrentView = RegistrationViewModel;
             LoginViewModel.NavigateToPasswordRecovery = () => CurrentView = PasswordRecoveryViewModel;
             LoginViewModel.OnLoginSuccess = HandleLoginSuccess;
 
-            // Hook up navigation actions in RegistrationViewModel and PasswordRecoveryViewModel
             RegistrationViewModel.NavigateToLogin = () => CurrentView = LoginViewModel;
             PasswordRecoveryViewModel.NavigateToLogin = () => CurrentView = LoginViewModel;
+
+            // Initialize commands
+            NavigateToDashboardCommand = ReactiveCommand.Create(NavigateToDashboard);
+            NavigateToPlantProfileCommand = ReactiveCommand.Create(NavigateToPlantProfile);
+            NavigateToDeviceSettingsCommand = ReactiveCommand.Create(NavigateToDeviceSettings);
+            NavigateToUserSettingsCommand = ReactiveCommand.Create(NavigateToUserSettings);
         }
 
-        // Properties for view models
+        public ReactiveCommand<Unit, Unit> NavigateToDashboardCommand { get; }
+        public ReactiveCommand<Unit, Unit> NavigateToPlantProfileCommand { get; }
+        public ReactiveCommand<Unit, Unit> NavigateToDeviceSettingsCommand { get; }
+        public ReactiveCommand<Unit, Unit> NavigateToUserSettingsCommand { get; }
+
         public LoginViewModel LoginViewModel { get; }
         public RegistrationViewModel RegistrationViewModel { get; }
         public PasswordRecoveryViewModel PasswordRecoveryViewModel { get; }
@@ -47,30 +57,41 @@ namespace PresentationTier.ViewModels
         public DeviceSettingsViewModel DeviceSettingsViewModel { get; }
         public UserSettingsViewModel UserSettingsViewModel { get; }
 
-        // Property for determining if the user is authenticated
         public bool IsAuthenticated
         {
             get => _isAuthenticated;
             set => this.RaiseAndSetIfChanged(ref _isAuthenticated, value);
         }
 
-        // CurrentView determines which view is displayed
         public ReactiveObject CurrentView
         {
             get => _currentView;
             set => this.RaiseAndSetIfChanged(ref _currentView, value);
         }
 
-        // Navigation methods for the post-login UI
-        public void NavigateToDashboardView() => CurrentView = DashboardViewModel;
-        public void NavigateToPlantProfileView() => CurrentView = PlantProfileViewModel;
-        public void NavigateToDeviceSettingsView() => CurrentView = DeviceSettingsViewModel;
-        public void NavigateToUserSettingsView() => CurrentView = UserSettingsViewModel;
+        private void NavigateToDashboard()
+        {
+            CurrentView = DashboardViewModel;
+        }
 
-        // Handle login success to switch to the authenticated UI
+        private void NavigateToPlantProfile()
+        {
+            CurrentView = PlantProfileViewModel;
+        }
+
+        private void NavigateToDeviceSettings()
+        {
+            CurrentView = DeviceSettingsViewModel;
+        }
+
+        private void NavigateToUserSettings()
+        {
+            CurrentView = UserSettingsViewModel;
+        }
+
         private void HandleLoginSuccess()
         {
-            IsAuthenticated = true; // Mark user as authenticated
+            IsAuthenticated = true; // Mark user as logged in
             CurrentView = DashboardViewModel; // Default view after login
         }
     }
