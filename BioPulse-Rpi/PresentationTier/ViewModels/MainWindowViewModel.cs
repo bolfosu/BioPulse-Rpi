@@ -17,7 +17,6 @@ namespace PresentationTier.ViewModels
             DeviceSettingsViewModel deviceSettingsViewModel,
             UserSettingsViewModel userSettingsViewModel)
         {
-            // Assign view models
             LoginViewModel = loginViewModel;
             RegistrationViewModel = registrationViewModel;
             PasswordRecoveryViewModel = passwordRecoveryViewModel;
@@ -26,28 +25,50 @@ namespace PresentationTier.ViewModels
             DeviceSettingsViewModel = deviceSettingsViewModel;
             UserSettingsViewModel = userSettingsViewModel;
 
-            // Default view
             CurrentView = LoginViewModel;
 
-            // Bind navigation actions
+            // Commands to navigate between views
+            NavigateToDashboardCommand = ReactiveCommand.Create(() =>
+            {
+                CurrentView = DashboardViewModel;
+                return CurrentView;
+            });
+
+            NavigateToPlantProfileCommand = ReactiveCommand.Create(() =>
+            {
+                CurrentView = PlantProfileViewModel;
+                return CurrentView;
+            });
+
+            NavigateToDeviceSettingsCommand = ReactiveCommand.Create(() =>
+            {
+                CurrentView = DeviceSettingsViewModel;
+                return CurrentView;
+            });
+
+            NavigateToUserSettingsCommand = ReactiveCommand.Create(() =>
+            {
+                CurrentView = UserSettingsViewModel;
+                return CurrentView;
+            });
+
+            // Login navigation
+            LoginViewModel.OnLoginSuccess = HandleLoginSuccess;
             LoginViewModel.NavigateToRegister = () => CurrentView = RegistrationViewModel;
             LoginViewModel.NavigateToPasswordRecovery = () => CurrentView = PasswordRecoveryViewModel;
-            LoginViewModel.OnLoginSuccess = HandleLoginSuccess;
 
-            RegistrationViewModel.NavigateToLogin = () => CurrentView = LoginViewModel;
-            PasswordRecoveryViewModel.NavigateToLogin = () => CurrentView = LoginViewModel;
-
-            // Initialize commands
-            NavigateToDashboardCommand = ReactiveCommand.Create(NavigateToDashboard);
-            NavigateToPlantProfileCommand = ReactiveCommand.Create(NavigateToPlantProfile);
-            NavigateToDeviceSettingsCommand = ReactiveCommand.Create(NavigateToDeviceSettings);
-            NavigateToUserSettingsCommand = ReactiveCommand.Create(NavigateToUserSettings);
+            // Command for navigating to New Profile View
+            NavigateToCreateProfileViewCommand = ReactiveCommand.Create(() =>
+            {
+                NavigateToCreateProfileView();
+            });
         }
 
-        public ReactiveCommand<Unit, Unit> NavigateToDashboardCommand { get; }
-        public ReactiveCommand<Unit, Unit> NavigateToPlantProfileCommand { get; }
-        public ReactiveCommand<Unit, Unit> NavigateToDeviceSettingsCommand { get; }
-        public ReactiveCommand<Unit, Unit> NavigateToUserSettingsCommand { get; }
+        public ReactiveCommand<Unit, ReactiveObject> NavigateToDashboardCommand { get; }
+        public ReactiveCommand<Unit, ReactiveObject> NavigateToPlantProfileCommand { get; }
+        public ReactiveCommand<Unit, ReactiveObject> NavigateToDeviceSettingsCommand { get; }
+        public ReactiveCommand<Unit, ReactiveObject> NavigateToUserSettingsCommand { get; }
+        public ReactiveCommand<Unit, Unit> NavigateToCreateProfileViewCommand { get; } // New Command
 
         public LoginViewModel LoginViewModel { get; }
         public RegistrationViewModel RegistrationViewModel { get; }
@@ -69,30 +90,16 @@ namespace PresentationTier.ViewModels
             set => this.RaiseAndSetIfChanged(ref _currentView, value);
         }
 
-        private void NavigateToDashboard()
+        private void HandleLoginSuccess()
         {
+            IsAuthenticated = true;
             CurrentView = DashboardViewModel;
         }
 
-        private void NavigateToPlantProfile()
+        // Method to navigate to the New Profile View
+        public void NavigateToCreateProfileView()
         {
-            CurrentView = PlantProfileViewModel;
-        }
-
-        private void NavigateToDeviceSettings()
-        {
-            CurrentView = DeviceSettingsViewModel;
-        }
-
-        private void NavigateToUserSettings()
-        {
-            CurrentView = UserSettingsViewModel;
-        }
-
-        private void HandleLoginSuccess()
-        {
-            IsAuthenticated = true; // Mark user as logged in
-            CurrentView = DashboardViewModel; // Default view after login
+            CurrentView = new NewPlantProfileViewModel(); // Set the CurrentView to the NewProfileViewModel
         }
     }
 }

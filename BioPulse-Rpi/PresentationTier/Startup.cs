@@ -30,6 +30,12 @@ public class Startup
         services.AddSingleton<PlantProfileViewModel>();
         services.AddSingleton<DeviceSettingsViewModel>();
         services.AddSingleton<UserSettingsViewModel>();
+        services.AddSingleton<PlantProfileViewModel>();
+        services.AddTransient<PlantProfileView>();
+
+        // Register New Profile components
+        services.AddTransient<NewPlantProfileView>();
+        services.AddTransient<NewPlantProfileViewModel>();
 
         // Register repositories
         services.AddScoped<UserRepo>();
@@ -45,6 +51,6 @@ public class Startup
         services.AddSingleton<PlantProfileViewModel>();
         services.AddSingleton<DeviceSettingsViewModel>();
         services.AddSingleton<UserSettingsViewModel>();
-
+        services.AddTransient<NewPlantProfileViewModel>(); // Registering NewProfileViewModel as transient for dynamic navigation
     }
 }

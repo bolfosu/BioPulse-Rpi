@@ -1,0 +1,29 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:PresentationTier.ViewModels"
+             x:Class="PresentationTier.Views.NewPlantProfileView">
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+
+		<StackPanel>
+			<TextBlock Text="Create New Plant Profile" FontSize="20" FontWeight="Bold" Margin="10" />
+			<TextBox Text="{Binding ProfileName}" Watermark="Enter profile name" Margin="10" />
+
+			<TextBlock Text="Sensor Ranges" FontWeight="Bold" Margin="10" />
+			<TextBox Text="{Binding PhMin}" Watermark="pH Min" Margin="10" />
+			<TextBox Text="{Binding PhMax}" Watermark="pH Max" Margin="10" />
+			<TextBox Text="{Binding TempMin}" Watermark="Temperature Min" Margin="10" />
+			<TextBox Text="{Binding TempMax}" Watermark="Temperature Max" Margin="10" />
+			<TextBox Text="{Binding EcMin}" Watermark="EC Min" Margin="10" />
+			<TextBox Text="{Binding EcMax}" Watermark="EC Max" Margin="10" />
+			<TextBox Text="{Binding LightMin}" Watermark="Light Min" Margin="10" />
+			<TextBox Text="{Binding LightMax}" Watermark="Light Max" Margin="10" />
+
+			<Button Content="Save" Command="{Binding SaveProfileCommand}" Margin="10" />
+			<Button Content="Activate" Command="{Binding ActivateProfileCommand}" Margin="10" />
+		</StackPanel>
+	</Grid>
+</UserControl>

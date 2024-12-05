@@ -2,9 +2,68 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d"
+             d:DesignWidth="800" d:DesignHeight="600"
              x:Class="PresentationTier.Views.PlantProfileView">
 	<Grid>
-		<TextBlock Text="Welcome to Plant profile!" HorizontalAlignment="Center" VerticalAlignment="Center" />
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="250" />
+			<ColumnDefinition Width="*" />
+		</Grid.ColumnDefinitions>
+
+		<!-- List of Plant Profiles -->
+		<StackPanel Grid.Row="0" Grid.Column="0" Background="LightGray" Margin="5" Spacing="10">
+			<TextBlock Text="Plant Profiles" Margin="10" FontWeight="Bold" />
+			<ListBox ItemsSource="{Binding Profiles}"
+                     SelectedItem="{Binding SelectedProfile}"
+                     SelectionMode="Single">
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<Button Content="{Binding}"
+                                Command="{Binding DataContext.SelectProfileCommand, 
+                                RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                CommandParameter="{Binding}" />
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
+			<Button Content="Create New Profile" Command="{Binding NavigateToCreateProfileCommand}" Margin="10" />
+		</StackPanel>
+
+		<!-- Main Profile Content -->
+		<StackPanel Grid.Row="0" Grid.Column="1" Margin="10" Spacing="15">
+			<TextBlock Text="pH Range" FontWeight="Bold" />
+			<StackPanel Orientation="Horizontal" Spacing="10">
+				<TextBox Watermark="Min" Text="{Binding PhMin}" Width="100" />
+				<TextBox Watermark="Max" Text="{Binding PhMax}" Width="100" />
+			</StackPanel>
+
+			<TextBlock Text="Temperature Range" FontWeight="Bold" />
+			<StackPanel Orientation="Horizontal" Spacing="10">
+				<TextBox Watermark="Min" Text="{Binding TempMin}" Width="100" />
+				<TextBox Watermark="Max" Text="{Binding TempMax}" Width="100" />
+			</StackPanel>
+
+			<TextBlock Text="EC Range" FontWeight="Bold" />
+			<StackPanel Orientation="Horizontal" Spacing="10">
+				<TextBox Watermark="Min" Text="{Binding EcMin}" Width="100" />
+				<TextBox Watermark="Max" Text="{Binding EcMax}" Width="100" />
+			</StackPanel>
+
+			<TextBlock Text="Light Range" FontWeight="Bold" />
+			<StackPanel Orientation="Horizontal" Spacing="10">
+				<TextBox Watermark="Min" Text="{Binding LightMin}" Width="100" />
+				<TextBox Watermark="Max" Text="{Binding LightMax}" Width="100" />
+			</StackPanel>
+
+			<!-- Save and Activate Buttons -->
+			<StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Spacing="20" Margin="5">
+				<Button Content="Save" Command="{Binding SaveCommand}" Width="100" />
+				<Button Content="Activate" Command="{Binding ActivateCommand}" Width="100" />
+			</StackPanel>
+		</StackPanel>
 	</Grid>
 </UserControl>

@@ -5,18 +5,16 @@
 	<Grid>
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="200" />
-			<!-- Navigation Panel -->
 			<ColumnDefinition Width="*" />
-			<!-- Main Content Area -->
 		</Grid.ColumnDefinitions>
 
 		<!-- Navigation Panel -->
-		<StackPanel Background="LightGray" Grid.Column="0" IsVisible="{Binding IsAuthenticated}">
-			<Button Content="Dashboard" Command="{Binding NavigateToDashboardCommand}" Margin="10" />
-			<Button Content="Plant Profile" Command="{Binding NavigateToPlantProfileCommand}" Margin="10" />
-			<Button Content="Device Settings" Command="{Binding NavigateToDeviceSettingsCommand}" Margin="10" />
-			<Button Content="User Settings" Command="{Binding NavigateToUserSettingsCommand}" Margin="10" />
-		</StackPanel>
+		<StackPanel Grid.Column="0" Background="LightGray" IsVisible="{Binding IsAuthenticated}">
+    <Button Content="Dashboard" Command="{Binding NavigateToDashboardCommand}" Margin="10" />
+    <Button Content="Plant Profile" Command="{Binding NavigateToPlantProfileCommand}" Margin="10" />
+    <Button Content="Device Settings" Command="{Binding NavigateToDeviceSettingsCommand}" Margin="10" />
+    <Button Content="User Settings" Command="{Binding NavigateToUserSettingsCommand}" Margin="10" />
+</StackPanel>
 
 		<!-- Main Content -->
 		<ContentControl Grid.Column="1" Content="{Binding CurrentView}" />
