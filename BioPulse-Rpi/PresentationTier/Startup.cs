@@ -26,6 +26,10 @@ public class Startup
         // Register views
         services.AddSingleton<MainWindow>();
         services.AddSingleton<MainWindowViewModel>();
+        services.AddSingleton<DashboardViewModel>();
+        services.AddSingleton<PlantProfileViewModel>();
+        services.AddSingleton<DeviceSettingsViewModel>();
+        services.AddSingleton<UserSettingsViewModel>();
 
         // Register repositories
         services.AddScoped<UserRepo>();
@@ -37,6 +41,10 @@ public class Startup
         services.AddTransient<LoginViewModel>();
         services.AddTransient<RegistrationViewModel>();
         services.AddTransient<PasswordRecoveryViewModel>();
+        services.AddSingleton<DashboardViewModel>();
+        services.AddSingleton<PlantProfileViewModel>();
+        services.AddSingleton<DeviceSettingsViewModel>();
+        services.AddSingleton<UserSettingsViewModel>();
 
     }
 }

@@ -39,6 +39,9 @@ namespace PresentationTier.ViewModels
         public Action EnterGuestMode { get; set; } // Action for guest mode
         public Action NavigateToPasswordRecovery { get; set; } // Action for password recovery
 
+        // Callback for successful login
+        public Action OnLoginSuccess { get; set; }
+
         private readonly UserManagementService _userService;
 
         public LoginViewModel(UserManagementService userService)
@@ -73,7 +76,9 @@ namespace PresentationTier.ViewModels
                 var user = await _userService.AuthenticateAsync(Email, Password);
                 Console.WriteLine($"User {user.Name} logged in successfully!");
                 ErrorMessage = string.Empty;
-                // Add navigation to the main page if required
+
+                // Notify MainWindowViewModel about successful login
+                OnLoginSuccess?.Invoke();
             }
             catch (Exception ex)
             {

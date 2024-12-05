@@ -9,15 +9,39 @@
 	</Application.Styles>
 
 	<Application.DataTemplates>
-		<DataTemplate DataType="{x:Type viewmodels:LoginViewModel}">
+		<!-- Template for LoginViewModel -->
+		<DataTemplate DataType="viewmodels:LoginViewModel">
 			<views:LoginView />
 		</DataTemplate>
-		<DataTemplate DataType="{x:Type viewmodels:RegistrationViewModel}">
+
+		<!-- Template for RegistrationViewModel -->
+		<DataTemplate DataType="viewmodels:RegistrationViewModel">
 			<views:RegistrationView />
 		</DataTemplate>
-		<DataTemplate DataType="{x:Type viewmodels:PasswordRecoveryViewModel}">
+
+		<!-- Template for PasswordRecoveryViewModel -->
+		<DataTemplate DataType="viewmodels:PasswordRecoveryViewModel">
 			<views:PasswordRecoveryView />
 		</DataTemplate>
-		
+
+		<!-- Template for DashboardViewModel -->
+		<DataTemplate DataType="viewmodels:DashboardViewModel">
+			<views:DashboardView />
+		</DataTemplate>
+
+		<!-- Template for PlantProfileViewModel -->
+		<DataTemplate DataType="viewmodels:PlantProfileViewModel">
+			<views:PlantProfileView />
+		</DataTemplate>
+
+		<!-- Template for DeviceSettingsViewModel -->
+		<DataTemplate DataType="viewmodels:DeviceSettingsViewModel">
+			<views:DeviceSettingsView />
+		</DataTemplate>
+
+		<!-- Template for UserSettingsViewModel -->
+		<DataTemplate DataType="viewmodels:UserSettingsViewModel">
+			<views:UserSettingsView />
+		</DataTemplate>
 	</Application.DataTemplates>
 </Application>
