@@ -10,16 +10,6 @@
 		<!-- List of Plant Profiles -->
 		<StackPanel Grid.Column="0" Background="LightGray" Margin="10" Spacing="10">
 			<TextBlock Text="Plant Profiles" FontWeight="Bold" Margin="10" />
-
-			<!-- Predefined Profile Buttons -->
-			<WrapPanel Orientation="Horizontal" Margin="10">
-				<Button Content="Cabbage" Command="{Binding SelectPredefinedProfileCommand}" CommandParameter="Cabbage" Margin="5" />
-				<Button Content="Salad" Command="{Binding SelectPredefinedProfileCommand}" CommandParameter="Salad" Margin="5" />
-				<Button Content="Cucumber" Command="{Binding SelectPredefinedProfileCommand}" CommandParameter="Cucumber" Margin="5" />
-				<Button Content="Tomato" Command="{Binding SelectPredefinedProfileCommand}" CommandParameter="Tomato" Margin="5" />
-			</WrapPanel>
-
-			<!-- User Profiles -->
 			<ListBox ItemsSource="{Binding Profiles}"
                      SelectedItem="{Binding SelectedProfile}"
                      SelectionMode="Single">
@@ -30,10 +20,14 @@
 				</ListBox.ItemTemplate>
 			</ListBox>
 			<Button Content="Create New Profile" Command="{Binding CreateNewProfileCommand}" Margin="10" />
+			<Button Content="Delete Profile" Command="{Binding DeleteProfileCommand}" Margin="10" />
 		</StackPanel>
 
 		<!-- Profile Details -->
 		<StackPanel Grid.Column="1" Margin="10" Spacing="10">
+			<TextBlock Text="Profile Name" FontWeight="Bold" />
+			<TextBox Text="{Binding NewProfileName}" Watermark="Enter profile name" />
+
 			<TextBlock Text="pH Range" FontWeight="Bold" />
 			<StackPanel Orientation="Horizontal" Spacing="10">
 				<TextBox Watermark="Min" Text="{Binding PhMin}" Width="100" />

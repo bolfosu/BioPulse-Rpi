@@ -1,7 +1,6 @@
 ﻿using DataAccessLayer.Models;
 using LogicLayer.Services;
 using ReactiveUI;
-using System.Collections.Generic;
 using System;
 using System.Collections.ObjectModel;
 using System.Reactive;
@@ -13,6 +12,7 @@ namespace PresentationTier.ViewModels
     {
         private readonly PlantProfileService _plantProfileService;
         private PlantProfile _selectedProfile;
+        private string _newProfileName;
 
         public PlantProfileViewModel(PlantProfileService plantProfileService)
         {
@@ -25,7 +25,7 @@ namespace PresentationTier.ViewModels
             SaveProfileCommand = ReactiveCommand.CreateFromTask(SaveProfileAsync);
             ActivateProfileCommand = ReactiveCommand.Create(ActivateProfile);
             CreateNewProfileCommand = ReactiveCommand.Create(CreateNewProfile);
-            SelectPredefinedProfileCommand = ReactiveCommand.Create<string>(SelectPredefinedProfile);
+            DeleteProfileCommand = ReactiveCommand.CreateFromTask(DeleteProfileAsync);
 
             // Load profiles on initialization
             LoadProfilesCommand.Execute().Subscribe();
@@ -36,7 +36,34 @@ namespace PresentationTier.ViewModels
         public PlantProfile SelectedProfile
         {
             get => _selectedProfile;
-            set => this.RaiseAndSetIfChanged(ref _selectedProfile, value);
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _selectedProfile, value);
+
+                // Update UI fields when a profile is selected
+                if (_selectedProfile != null)
+                {
+                    NewProfileName = _selectedProfile.Name;
+                    PhMin = _selectedProfile.PhMin.ToString();
+                    PhMax = _selectedProfile.PhMax.ToString();
+                    TempMin = _selectedProfile.TemperatureMin.ToString();
+                    TempMax = _selectedProfile.TemperatureMax.ToString();
+                    EcMin = _selectedProfile.EcMin.ToString();
+                    EcMax = _selectedProfile.EcMax.ToString();
+                    LightMin = _selectedProfile.LightMin.ToString();
+                    LightMax = _selectedProfile.LightMax.ToString();
+                }
+                else
+                {
+                    ClearFields();
+                }
+            }
+        }
+
+        public string NewProfileName
+        {
+            get => _newProfileName;
+            set => this.RaiseAndSetIfChanged(ref _newProfileName, value);
         }
 
         public string PhMin { get; set; }
@@ -52,7 +79,7 @@ namespace PresentationTier.ViewModels
         public ReactiveCommand<Unit, Unit> SaveProfileCommand { get; }
         public ReactiveCommand<Unit, Unit> ActivateProfileCommand { get; }
         public ReactiveCommand<Unit, Unit> CreateNewProfileCommand { get; }
-        public ReactiveCommand<string, Unit> SelectPredefinedProfileCommand { get; }
+        public ReactiveCommand<Unit, Unit> DeleteProfileCommand { get; }
 
         private async Task LoadProfilesAsync()
         {
@@ -73,8 +100,9 @@ namespace PresentationTier.ViewModels
 
         private async Task SaveProfileAsync()
         {
-            if (SelectedProfile == null) return;
+            if (SelectedProfile == null || string.IsNullOrWhiteSpace(NewProfileName)) return;
 
+            SelectedProfile.Name = NewProfileName;
             SelectedProfile.PhMin = double.Parse(PhMin);
             SelectedProfile.PhMax = double.Parse(PhMax);
             SelectedProfile.TemperatureMin = double.Parse(TempMin);
@@ -84,21 +112,46 @@ namespace PresentationTier.ViewModels
             SelectedProfile.LightMin = double.Parse(LightMin);
             SelectedProfile.LightMax = double.Parse(LightMax);
 
-            await _plantProfileService.UpdatePlantProfileAsync(SelectedProfile);
+            if (SelectedProfile.Id == 0) // New profile
+            {
+                await _plantProfileService.AddPlantProfileAsync(SelectedProfile);
+            }
+            else // Update existing profile
+            {
+                await _plantProfileService.UpdatePlantProfileAsync(SelectedProfile);
+            }
+
+            // Reload profiles
+            await LoadProfilesAsync();
         }
 
         private void ActivateProfile()
         {
             if (SelectedProfile == null) return;
-            // Add activation logic
+            System.Console.WriteLine($"Profile '{SelectedProfile.Name}' activated.");
         }
 
         private void CreateNewProfile()
         {
-            var newProfile = new PlantProfile { Name = "New Profile" };
-            Profiles.Add(newProfile);
-            SelectedProfile = newProfile;
+            SelectedProfile = new PlantProfile();
+            ClearFields();
+        }
 
+        private async Task DeleteProfileAsync()
+        {
+            if (SelectedProfile == null) return;
+
+            await _plantProfileService.DeletePlantProfileAsync(SelectedProfile.Id);
+
+            Profiles.Remove(SelectedProfile);
+            SelectedProfile = null;
+
+            System.Console.WriteLine("Profile deleted successfully.");
+        }
+
+        private void ClearFields()
+        {
+            NewProfileName = string.Empty;
             PhMin = string.Empty;
             PhMax = string.Empty;
             TempMin = string.Empty;
@@ -107,30 +160,6 @@ namespace PresentationTier.ViewModels
             EcMax = string.Empty;
             LightMin = string.Empty;
             LightMax = string.Empty;
-        }
-
-        private void SelectPredefinedProfile(string profileName)
-        {
-            var predefinedProfiles = new Dictionary<string, PlantProfile>
-            {
-                { "Cabbage", new PlantProfile { Name = "Cabbage", PhMin = 5.5, PhMax = 6.5, TemperatureMin = 18, TemperatureMax = 24, EcMin = 1.5, EcMax = 2.5, LightMin = 400, LightMax = 800 } },
-                { "Salad", new PlantProfile { Name = "Salad", PhMin = 6.0, PhMax = 7.0, TemperatureMin = 15, TemperatureMax = 22, EcMin = 1.2, EcMax = 2.0, LightMin = 300, LightMax = 600 } },
-                { "Cucumber", new PlantProfile { Name = "Cucumber", PhMin = 5.8, PhMax = 6.5, TemperatureMin = 20, TemperatureMax = 28, EcMin = 1.8, EcMax = 2.7, LightMin = 500, LightMax = 900 } },
-                { "Tomato", new PlantProfile { Name = "Tomato", PhMin = 5.5, PhMax = 6.5, TemperatureMin = 18, TemperatureMax = 24, EcMin = 2.0, EcMax = 3.5, LightMin = 600, LightMax = 1000 } },
-            };
-
-            if (predefinedProfiles.TryGetValue(profileName, out var profile))
-            {
-                SelectedProfile = profile;
-                PhMin = profile.PhMin.ToString();
-                PhMax = profile.PhMax.ToString();
-                TempMin = profile.TemperatureMin.ToString();
-                TempMax = profile.TemperatureMax.ToString();
-                EcMin = profile.EcMin.ToString();
-                EcMax = profile.EcMax.ToString();
-                LightMin = profile.LightMin.ToString();
-                LightMax = profile.LightMax.ToString();
-            }
         }
     }
 }

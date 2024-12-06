@@ -41,7 +41,7 @@ public class Startup
 
         // Register repositories
         services.AddScoped<UserRepo>();
-        services.AddScoped<IRepository<PlantProfile>, PlantProfileRepo>();
+        services.AddScoped<IRepository<PlantProfile>, GenericRepository<PlantProfile>>();
         services.AddScoped<IRepository<Sensor>, GenericRepository<Sensor>>();
 
         // Register services
