@@ -57,11 +57,7 @@ namespace PresentationTier.ViewModels
             LoginViewModel.NavigateToRegister = () => CurrentView = RegistrationViewModel;
             LoginViewModel.NavigateToPasswordRecovery = () => CurrentView = PasswordRecoveryViewModel;
 
-            // Command for navigating to New Profile View
-            NavigateToCreateProfileViewCommand = ReactiveCommand.Create(() =>
-            {
-                NavigateToCreateProfileView();
-            });
+           
         }
 
         public ReactiveCommand<Unit, ReactiveObject> NavigateToDashboardCommand { get; }
@@ -96,10 +92,6 @@ namespace PresentationTier.ViewModels
             CurrentView = DashboardViewModel;
         }
 
-        // Method to navigate to the New Profile View
-        public void NavigateToCreateProfileView()
-        {
-            CurrentView = new NewPlantProfileViewModel(); // Set the CurrentView to the NewProfileViewModel
-        }
+      
     }
 }

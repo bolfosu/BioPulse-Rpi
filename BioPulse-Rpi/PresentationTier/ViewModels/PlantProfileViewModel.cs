@@ -13,6 +13,7 @@ namespace PresentationTier.ViewModels
         private readonly PlantProfileService _plantProfileService;
         private PlantProfile _selectedProfile;
         private string _newProfileName;
+        private string _errorMessage;
 
         public PlantProfileViewModel(PlantProfileService plantProfileService)
         {
@@ -39,24 +40,7 @@ namespace PresentationTier.ViewModels
             set
             {
                 this.RaiseAndSetIfChanged(ref _selectedProfile, value);
-
-                // Update UI fields when a profile is selected
-                if (_selectedProfile != null)
-                {
-                    NewProfileName = _selectedProfile.Name;
-                    PhMin = _selectedProfile.PhMin.ToString();
-                    PhMax = _selectedProfile.PhMax.ToString();
-                    TempMin = _selectedProfile.TemperatureMin.ToString();
-                    TempMax = _selectedProfile.TemperatureMax.ToString();
-                    EcMin = _selectedProfile.EcMin.ToString();
-                    EcMax = _selectedProfile.EcMax.ToString();
-                    LightMin = _selectedProfile.LightMin.ToString();
-                    LightMax = _selectedProfile.LightMax.ToString();
-                }
-                else
-                {
-                    ClearFields();
-                }
+                UpdateFieldsForSelectedProfile();
             }
         }
 
@@ -66,14 +50,67 @@ namespace PresentationTier.ViewModels
             set => this.RaiseAndSetIfChanged(ref _newProfileName, value);
         }
 
-        public string PhMin { get; set; }
-        public string PhMax { get; set; }
-        public string TempMin { get; set; }
-        public string TempMax { get; set; }
-        public string EcMin { get; set; }
-        public string EcMax { get; set; }
-        public string LightMin { get; set; }
-        public string LightMax { get; set; }
+        public string ErrorMessage
+        {
+            get => _errorMessage;
+            set => this.RaiseAndSetIfChanged(ref _errorMessage, value);
+        }
+
+        private string _phMin;
+        public string PhMin
+        {
+            get => _phMin;
+            set => this.RaiseAndSetIfChanged(ref _phMin, value);
+        }
+
+        private string _phMax;
+        public string PhMax
+        {
+            get => _phMax;
+            set => this.RaiseAndSetIfChanged(ref _phMax, value);
+        }
+
+        private string _tempMin;
+        public string TempMin
+        {
+            get => _tempMin;
+            set => this.RaiseAndSetIfChanged(ref _tempMin, value);
+        }
+
+        private string _tempMax;
+        public string TempMax
+        {
+            get => _tempMax;
+            set => this.RaiseAndSetIfChanged(ref _tempMax, value);
+        }
+
+        private string _ecMin;
+        public string EcMin
+        {
+            get => _ecMin;
+            set => this.RaiseAndSetIfChanged(ref _ecMin, value);
+        }
+
+        private string _ecMax;
+        public string EcMax
+        {
+            get => _ecMax;
+            set => this.RaiseAndSetIfChanged(ref _ecMax, value);
+        }
+
+        private string _lightMin;
+        public string LightMin
+        {
+            get => _lightMin;
+            set => this.RaiseAndSetIfChanged(ref _lightMin, value);
+        }
+
+        private string _lightMax;
+        public string LightMax
+        {
+            get => _lightMax;
+            set => this.RaiseAndSetIfChanged(ref _lightMax, value);
+        }
 
         public ReactiveCommand<Unit, Unit> LoadProfilesCommand { get; }
         public ReactiveCommand<Unit, Unit> SaveProfileCommand { get; }
@@ -91,62 +128,123 @@ namespace PresentationTier.ViewModels
                 {
                     Profiles.Add(profile);
                 }
+                ErrorMessage = string.Empty;
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"Error loading profiles: {ex.Message}");
+                ErrorMessage = $"Error loading profiles: {ex.Message}";
             }
         }
 
         private async Task SaveProfileAsync()
         {
-            if (SelectedProfile == null || string.IsNullOrWhiteSpace(NewProfileName)) return;
-
-            SelectedProfile.Name = NewProfileName;
-            SelectedProfile.PhMin = double.Parse(PhMin);
-            SelectedProfile.PhMax = double.Parse(PhMax);
-            SelectedProfile.TemperatureMin = double.Parse(TempMin);
-            SelectedProfile.TemperatureMax = double.Parse(TempMax);
-            SelectedProfile.EcMin = double.Parse(EcMin);
-            SelectedProfile.EcMax = double.Parse(EcMax);
-            SelectedProfile.LightMin = double.Parse(LightMin);
-            SelectedProfile.LightMax = double.Parse(LightMax);
-
-            if (SelectedProfile.Id == 0) // New profile
+            try
             {
-                await _plantProfileService.AddPlantProfileAsync(SelectedProfile);
-            }
-            else // Update existing profile
-            {
-                await _plantProfileService.UpdatePlantProfileAsync(SelectedProfile);
-            }
+                if (SelectedProfile == null || string.IsNullOrWhiteSpace(NewProfileName))
+                {
+                    ErrorMessage = "Profile name cannot be empty.";
+                    return;
+                }
 
-            // Reload profiles
-            await LoadProfilesAsync();
+                if (!double.TryParse(PhMin, out var phMin) ||
+                    !double.TryParse(PhMax, out var phMax) ||
+                    !double.TryParse(TempMin, out var tempMin) ||
+                    !double.TryParse(TempMax, out var tempMax) ||
+                    !double.TryParse(EcMin, out var ecMin) ||
+                    !double.TryParse(EcMax, out var ecMax) ||
+                    !double.TryParse(LightMin, out var lightMin) ||
+                    !double.TryParse(LightMax, out var lightMax))
+                {
+                    ErrorMessage = "All numeric fields must contain valid numbers.";
+                    return;
+                }
+
+                SelectedProfile.Name = NewProfileName;
+                SelectedProfile.PhMin = phMin;
+                SelectedProfile.PhMax = phMax;
+                SelectedProfile.TemperatureMin = tempMin;
+                SelectedProfile.TemperatureMax = tempMax;
+                SelectedProfile.EcMin = ecMin;
+                SelectedProfile.EcMax = ecMax;
+                SelectedProfile.LightMin = lightMin;
+                SelectedProfile.LightMax = lightMax;
+
+                if (SelectedProfile.Id == 0)
+                {
+                    await _plantProfileService.AddPlantProfileAsync(SelectedProfile);
+                }
+                else
+                {
+                    await _plantProfileService.UpdatePlantProfileAsync(SelectedProfile);
+                }
+
+                await LoadProfilesAsync();
+                ErrorMessage = "Profile saved successfully.";
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Error saving profile: {ex.Message}";
+            }
         }
 
         private void ActivateProfile()
         {
-            if (SelectedProfile == null) return;
-            System.Console.WriteLine($"Profile '{SelectedProfile.Name}' activated.");
+            if (SelectedProfile == null)
+            {
+                ErrorMessage = "No profile selected to activate.";
+                return;
+            }
+
+            ErrorMessage = $"Profile '{SelectedProfile.Name}' activated.";
         }
 
         private void CreateNewProfile()
         {
             SelectedProfile = new PlantProfile();
             ClearFields();
+            ErrorMessage = "Insert values for the new profile.";
         }
 
         private async Task DeleteProfileAsync()
         {
-            if (SelectedProfile == null) return;
+            try
+            {
+                if (SelectedProfile == null)
+                {
+                    ErrorMessage = "No profile selected to delete.";
+                    return;
+                }
 
-            await _plantProfileService.DeletePlantProfileAsync(SelectedProfile.Id);
+                await _plantProfileService.DeletePlantProfileAsync(SelectedProfile.Id);
+                Profiles.Remove(SelectedProfile);
+                SelectedProfile = null;
 
-            Profiles.Remove(SelectedProfile);
-            SelectedProfile = null;
+                ErrorMessage = "Profile deleted successfully.";
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Error deleting profile: {ex.Message}";
+            }
+        }
 
-            System.Console.WriteLine("Profile deleted successfully.");
+        private void UpdateFieldsForSelectedProfile()
+        {
+            if (_selectedProfile != null)
+            {
+                NewProfileName = _selectedProfile.Name;
+                PhMin = _selectedProfile.PhMin.ToString();
+                PhMax = _selectedProfile.PhMax.ToString();
+                TempMin = _selectedProfile.TemperatureMin.ToString();
+                TempMax = _selectedProfile.TemperatureMax.ToString();
+                EcMin = _selectedProfile.EcMin.ToString();
+                EcMax = _selectedProfile.EcMax.ToString();
+                LightMin = _selectedProfile.LightMin.ToString();
+                LightMax = _selectedProfile.LightMax.ToString();
+            }
+            else
+            {
+                ClearFields();
+            }
         }
 
         private void ClearFields()
@@ -160,6 +258,7 @@ namespace PresentationTier.ViewModels
             EcMax = string.Empty;
             LightMin = string.Empty;
             LightMax = string.Empty;
+            ErrorMessage = string.Empty;
         }
     }
 }

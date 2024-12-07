@@ -11,7 +11,7 @@
 		<StackPanel Grid.Column="0" Background="LightGray" Margin="10" Spacing="10">
 			<TextBlock Text="Plant Profiles" FontWeight="Bold" Margin="10" />
 			<ListBox ItemsSource="{Binding Profiles}"
-                     SelectedItem="{Binding SelectedProfile}"
+                     SelectedItem="{Binding SelectedProfile, Mode=TwoWay}"
                      SelectionMode="Single">
 				<ListBox.ItemTemplate>
 					<DataTemplate>
@@ -25,31 +25,34 @@
 
 		<!-- Profile Details -->
 		<StackPanel Grid.Column="1" Margin="10" Spacing="10">
+			<!-- Error Messages -->
+			<TextBlock Text="{Binding ErrorMessage}" Foreground="Red" FontWeight="Bold" TextWrapping="Wrap" />
+
 			<TextBlock Text="Profile Name" FontWeight="Bold" />
-			<TextBox Text="{Binding NewProfileName}" Watermark="Enter profile name" />
+			<TextBox Text="{Binding NewProfileName, Mode=TwoWay}" Watermark="Enter profile name" />
 
 			<TextBlock Text="pH Range" FontWeight="Bold" />
 			<StackPanel Orientation="Horizontal" Spacing="10">
-				<TextBox Watermark="Min" Text="{Binding PhMin}" Width="100" />
-				<TextBox Watermark="Max" Text="{Binding PhMax}" Width="100" />
+				<TextBox Watermark="Min" Text="{Binding PhMin, Mode=TwoWay}" Width="100" />
+				<TextBox Watermark="Max" Text="{Binding PhMax, Mode=TwoWay}" Width="100" />
 			</StackPanel>
 
 			<TextBlock Text="Temperature Range" FontWeight="Bold" />
 			<StackPanel Orientation="Horizontal" Spacing="10">
-				<TextBox Watermark="Min" Text="{Binding TempMin}" Width="100" />
-				<TextBox Watermark="Max" Text="{Binding TempMax}" Width="100" />
+				<TextBox Watermark="Min" Text="{Binding TempMin, Mode=TwoWay}" Width="100" />
+				<TextBox Watermark="Max" Text="{Binding TempMax, Mode=TwoWay}" Width="100" />
 			</StackPanel>
 
 			<TextBlock Text="EC Range" FontWeight="Bold" />
 			<StackPanel Orientation="Horizontal" Spacing="10">
-				<TextBox Watermark="Min" Text="{Binding EcMin}" Width="100" />
-				<TextBox Watermark="Max" Text="{Binding EcMax}" Width="100" />
+				<TextBox Watermark="Min" Text="{Binding EcMin, Mode=TwoWay}" Width="100" />
+				<TextBox Watermark="Max" Text="{Binding EcMax, Mode=TwoWay}" Width="100" />
 			</StackPanel>
 
 			<TextBlock Text="Light Range" FontWeight="Bold" />
 			<StackPanel Orientation="Horizontal" Spacing="10">
-				<TextBox Watermark="Min" Text="{Binding LightMin}" Width="100" />
-				<TextBox Watermark="Max" Text="{Binding LightMax}" Width="100" />
+				<TextBox Watermark="Min" Text="{Binding LightMin, Mode=TwoWay}" Width="100" />
+				<TextBox Watermark="Max" Text="{Binding LightMax, Mode=TwoWay}" Width="100" />
 			</StackPanel>
 
 			<!-- Buttons -->
