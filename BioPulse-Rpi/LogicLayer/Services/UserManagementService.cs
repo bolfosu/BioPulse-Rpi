@@ -81,8 +81,27 @@ namespace LogicLayer.Services
             return user.SecurityQuestion;
         }
 
+        public async Task UpdateUserSettingsAsync(User user)
+        {
+            var existingUser = await _userRepo.GetByIdAsync(user.Id);
+            if (existingUser == null)
+                throw new InvalidOperationException("User not found.");
 
-        
+            existingUser.Email = user.Email;
+            existingUser.PasswordHash = user.PasswordHash; // Ensure it's already hashed
+            existingUser.SecurityQuestion = user.SecurityQuestion;
+            existingUser.SecurityAnswerHash = user.SecurityAnswerHash;
+
+            // Notification Settings
+            existingUser.IsWaterLevelLowNotificationEnabled = user.IsWaterLevelLowNotificationEnabled;
+            existingUser.IsSensorNotChangingNotificationEnabled = user.IsSensorNotChangingNotificationEnabled;
+            existingUser.IsSensorOffNotificationEnabled = user.IsSensorOffNotificationEnabled;
+
+            await _userRepo.UpdateAsync(existingUser);
+        }
+
+
+
         private string HashString(string input)
         {
             using var sha256 = SHA256.Create();
