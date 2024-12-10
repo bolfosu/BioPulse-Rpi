@@ -73,12 +73,7 @@ namespace DataAccessLayer.Migrations
                     b.Property<double>("TemperatureMin")
                         .HasColumnType("REAL");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("PlantProfiles");
                 });
@@ -147,18 +142,6 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Models.PlantProfile", b =>
-                {
-                    b.HasOne("DataAccessLayer.Models.User", null)
-                        .WithMany("PlantProfiles")
-                        .HasForeignKey("UserId");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Models.User", b =>
-                {
-                    b.Navigation("PlantProfiles");
                 });
 #pragma warning restore 612, 618
         }

@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DataSources\**" />
+    <EmbeddedResource Remove="DataSources\**" />
+    <None Remove="DataSources\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="DataAccessLayer.csproj.Backup.tmp" />
     <None Remove="hydroponicsystem.db-shm" />
     <None Remove="hydroponicsystem.db-wal" />
@@ -32,10 +38,6 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
 
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="DataSources\" />
   </ItemGroup>
 
 </Project>

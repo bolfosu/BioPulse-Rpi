@@ -10,44 +10,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241125223458_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20241210100750_CleanModels")]
+    partial class CleanModels
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.0");
-
-            modelBuilder.Entity("DataAccessLayer.Models.EcSensor", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<byte>("Address")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsWireless")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<double>("LastReading")
-                        .HasColumnType("REAL");
-
-                    b.Property<DateTime>("LastReadingTime")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("EcSensors");
-                });
 
             modelBuilder.Entity("DataAccessLayer.Models.ImageCapture", b =>
                 {
@@ -61,50 +31,6 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ImageCaptures");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Models.LightSensor", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("LightSensors");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Models.PhSensor", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<byte>("Address")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsWireless")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<double>("LastReading")
-                        .HasColumnType("REAL");
-
-                    b.Property<DateTime>("LastReadingTime")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PhSensors");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Models.PlantProfile", b =>
@@ -122,17 +48,17 @@ namespace DataAccessLayer.Migrations
                     b.Property<bool>("IsDefault")
                         .HasColumnType("INTEGER");
 
+                    b.Property<double>("LightMax")
+                        .HasColumnType("REAL");
+
+                    b.Property<double>("LightMin")
+                        .HasColumnType("REAL");
+
                     b.Property<TimeSpan>("LightOffTime")
                         .HasColumnType("TEXT");
 
                     b.Property<TimeSpan>("LightOnTime")
                         .HasColumnType("TEXT");
-
-                    b.Property<double>("LuxMax")
-                        .HasColumnType("REAL");
-
-                    b.Property<double>("LuxMin")
-                        .HasColumnType("REAL");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -150,17 +76,12 @@ namespace DataAccessLayer.Migrations
                     b.Property<double>("TemperatureMin")
                         .HasColumnType("REAL");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("PlantProfiles");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Models.TemperatureSensor", b =>
+            modelBuilder.Entity("DataAccessLayer.Models.Sensor", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -185,9 +106,12 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("SensorType")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
-                    b.ToTable("TemperatureSensors");
+                    b.ToTable("Sensors");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Models.User", b =>
@@ -221,18 +145,6 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Models.PlantProfile", b =>
-                {
-                    b.HasOne("DataAccessLayer.Models.User", null)
-                        .WithMany("PlantProfiles")
-                        .HasForeignKey("UserId");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Models.User", b =>
-                {
-                    b.Navigation("PlantProfiles");
                 });
 #pragma warning restore 612, 618
         }
