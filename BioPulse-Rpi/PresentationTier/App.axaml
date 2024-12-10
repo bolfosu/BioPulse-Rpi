@@ -1,47 +1,11 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:views="clr-namespace:PresentationTier.Views"
-             xmlns:viewmodels="clr-namespace:PresentationTier.ViewModels"
              x:Class="PresentationTier.App">
 	<Application.Styles>
-		<!-- Fluent Theme -->
 		<FluentTheme />
 	</Application.Styles>
 
 	<Application.DataTemplates>
-		<!-- Template for LoginViewModel -->
-		<DataTemplate DataType="viewmodels:LoginViewModel">
-			<views:LoginView />
-		</DataTemplate>
-
-		<!-- Template for RegistrationViewModel -->
-		<DataTemplate DataType="viewmodels:RegistrationViewModel">
-			<views:RegistrationView />
-		</DataTemplate>
-
-		<!-- Template for PasswordRecoveryViewModel -->
-		<DataTemplate DataType="viewmodels:PasswordRecoveryViewModel">
-			<views:PasswordRecoveryView />
-		</DataTemplate>
-
-		<!-- Template for DashboardViewModel -->
-		<DataTemplate DataType="viewmodels:DashboardViewModel">
-			<views:DashboardView />
-		</DataTemplate>
-
-		<!-- Template for PlantProfileViewModel -->
-		<DataTemplate DataType="viewmodels:PlantProfileViewModel">
-			<views:PlantProfileView />
-		</DataTemplate>
-
-		<!-- Template for DeviceSettingsViewModel -->
-		<DataTemplate DataType="viewmodels:DeviceSettingsViewModel">
-			<views:DeviceSettingsView />
-		</DataTemplate>
-
-		<!-- Template for UserSettingsViewModel -->
-		<DataTemplate DataType="viewmodels:UserSettingsViewModel">
-			<views:UserSettingsView />
-		</DataTemplate>
+		<!-- Define your ViewModel to View mappings here -->
 	</Application.DataTemplates>
 </Application>

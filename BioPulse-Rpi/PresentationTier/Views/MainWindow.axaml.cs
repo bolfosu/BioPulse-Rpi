@@ -1,6 +1,4 @@
 ﻿using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
-using PresentationTier.ViewModels;
 
 namespace PresentationTier.Views
 {
@@ -9,12 +7,6 @@ namespace PresentationTier.Views
         public MainWindow()
         {
             InitializeComponent();
-            
-        }
-
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
         }
     }
 }

@@ -2,7 +2,6 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
-using PresentationTier.ViewModels;
 using PresentationTier.Views;
 using System;
 
@@ -19,15 +18,13 @@ namespace PresentationTier
 
         public override void OnFrameworkInitializationCompleted()
         {
-            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
+            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
-                mainWindow.DataContext = ServiceProvider.GetRequiredService<MainWindowViewModel>();
-                desktopLifetime.MainWindow = mainWindow;
+                desktop.MainWindow = ServiceProvider.GetRequiredService<MainWindow>();
             }
-            else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewLifetime)
+            else if (ApplicationLifetime is ISingleViewApplicationLifetime singleView)
             {
-                singleViewLifetime.MainView = ServiceProvider.GetRequiredService<MainSingleView>();
+                singleView.MainView = ServiceProvider.GetRequiredService<MainSingleView>();
             }
 
             base.OnFrameworkInitializationCompleted();

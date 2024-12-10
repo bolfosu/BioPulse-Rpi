@@ -1,59 +1,62 @@
-﻿using DataAccessLayer.Repositories;
-using LogicLayer.Services;
+﻿using DataAccessLayer.Models;
+using DataAccessLayer.Repositories;
 using Microsoft.EntityFrameworkCore;
+using LogicLayer.Services;
 using Microsoft.Extensions.DependencyInjection;
 using PresentationTier.ViewModels;
 using PresentationTier.Views;
 using System;
 using System.IO;
-using DataAccessLayer;
-using DataAccessLayer.Models;
 
 public class Startup
 {
     public void ConfigureServices(IServiceCollection services)
     {
-        // Get the database path relative to the DataAccessLayer directory
-        var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\DataAccessLayer\hydroponicsystem.db");
-        var fullPath = Path.GetFullPath(dbPath);
+        // Get the database path in the publish directory
+        var dbPath = Path.Combine(AppContext.BaseDirectory, "hydroponicsystem.db");
 
-        // Log the database path
-        Console.WriteLine($"[Startup] Database file path: {fullPath}");
+        // Log the database path for debugging
+        Console.WriteLine($"[Startup] Database file path: {dbPath}");
 
-        // Add DbContext
+        // Add DbContext with the resolved database path
         services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlite($"Data Source={fullPath}"));
+            options.UseSqlite($"Data Source={dbPath}"));
 
-        // Register views
+        // Views
         services.AddSingleton<MainWindow>();
-        services.AddSingleton<MainWindowViewModel>();
-        services.AddSingleton<DashboardViewModel>();
-        services.AddSingleton<PlantProfileViewModel>();
-        services.AddSingleton<DeviceSettingsViewModel>();
-        services.AddSingleton<UserSettingsViewModel>();
-        services.AddSingleton<PlantProfileViewModel>();
-
+        services.AddSingleton<MainSingleView>();
+        services.AddSingleton<MainView>();
         services.AddSingleton<PlantProfileView>();
+        services.AddSingleton<DeviceSettingsView>();
+        services.AddSingleton<UserSettingsView>();
+        services.AddSingleton<RegistrationView>();
+        services.AddSingleton<PasswordRecoveryView>();
+        services.AddSingleton<DashboardView>();
+        services.AddSingleton<LoginView>();
+        
+
+        // ViewModels
+        services.AddSingleton<MainWindowViewModel>();
+        services.AddTransient<LoginViewModel>();
+        services.AddTransient<DashboardViewModel>();
+        services.AddTransient<DeviceSettingsViewModel>();
+        services.AddTransient<UserSettingsViewModel>();
+        services.AddTransient<PlantProfileViewModel>();
+        services.AddTransient<RegistrationViewModel>();
+        services.AddTransient<PasswordRecoveryViewModel>();
 
 
-     
 
-        // Register repositories
+
         services.AddScoped<UserRepo>();
         services.AddScoped<IRepository<PlantProfile>, GenericRepository<PlantProfile>>();
         services.AddScoped<IRepository<Sensor>, GenericRepository<Sensor>>();
 
-        // Register services
         services.AddSingleton<UserManagementService>();
         services.AddSingleton<PlantProfileService>();
 
-        // Register ViewModels
-        services.AddTransient<LoginViewModel>();
-        services.AddTransient<RegistrationViewModel>();
-        services.AddTransient<PasswordRecoveryViewModel>();
-        services.AddSingleton<DashboardViewModel>();
-        services.AddSingleton<DeviceSettingsViewModel>();
-        services.AddSingleton<UserSettingsViewModel>();
+        
        
+
     }
 }

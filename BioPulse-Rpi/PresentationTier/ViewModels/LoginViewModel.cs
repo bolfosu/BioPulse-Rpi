@@ -36,10 +36,9 @@ namespace PresentationTier.ViewModels
         public ReactiveCommand<Unit, Unit> NavigateToPasswordRecoveryCommand { get; }
 
         public Action NavigateToRegister { get; set; }
-        public Action EnterGuestMode { get; set; } // Action for guest mode
-        public Action NavigateToPasswordRecovery { get; set; } // Action for password recovery
+        public Action EnterGuestMode { get; set; }
+        public Action NavigateToPasswordRecovery { get; set; }
 
-        // Callback for successful login
         public Action OnLoginSuccess { get; set; }
 
         private readonly UserManagementService _userService;
@@ -63,7 +62,7 @@ namespace PresentationTier.ViewModels
 
         private async Task PerformLoginAsync()
         {
-            Console.WriteLine("Login Command Triggered"); // Debug log
+            Console.WriteLine("Login Command Triggered");
 
             if (string.IsNullOrEmpty(Email) || string.IsNullOrEmpty(Password))
             {
@@ -77,7 +76,6 @@ namespace PresentationTier.ViewModels
                 Console.WriteLine($"User {user.Name} logged in successfully!");
                 ErrorMessage = string.Empty;
 
-                // Notify MainWindowViewModel about successful login
                 OnLoginSuccess?.Invoke();
             }
             catch (Exception ex)
