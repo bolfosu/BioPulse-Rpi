@@ -30,6 +30,15 @@ public class Startup
                 Description = "API for managing BioPulse features"
             });
         });
+        services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll", builder =>
+            {
+                builder.AllowAnyOrigin() // Allow all origins
+                    .AllowAnyMethod() // Allow all HTTP methods (GET, POST, etc.)
+                    .AllowAnyHeader(); // Allow all headers
+            });
+        });
         // Get the database path relative to the DataAccessLayer directory
         var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\DataAccessLayer\hydroponicsystem.db");
         var fullPath = Path.GetFullPath(dbPath);
@@ -81,14 +90,15 @@ public class Startup
 
             // Enable Swagger
             app.UseSwagger();
-
-            // Enable Swagger UI
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "BioPulse API v1");
-                c.RoutePrefix = string.Empty; // Serve Swagger UI at the app's root
+                c.RoutePrefix = string.Empty;
             });
         }
+
+        // Enable CORS
+        app.UseCors("AllowAll");
 
         app.UseRouting();
 
@@ -97,5 +107,6 @@ public class Startup
             endpoints.MapControllers();
         });
     }
+
 
 }
