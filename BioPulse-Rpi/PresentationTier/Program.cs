@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.ReactiveUI;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -39,9 +40,19 @@ namespace PresentationTier
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureServices((_, services) =>
+                .ConfigureAppConfiguration((hostingContext, config) =>
                 {
-                    var startup = new Startup();
+                    // Add appsettings.json and environment variables
+                    config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+                    config.AddEnvironmentVariables();
+                })
+                .ConfigureServices((hostContext, services) =>
+                {
+                    // Retrieve configuration from hostContext
+                    var configuration = hostContext.Configuration;
+
+                    // Pass configuration into Startup
+                    var startup = new Startup(configuration);
                     startup.ConfigureServices(services);
                 });
 

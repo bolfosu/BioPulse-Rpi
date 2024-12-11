@@ -10,14 +10,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241210100750_CleanModels")]
-    partial class CleanModels
+    [Migration("20241211125034_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.0");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
 
             modelBuilder.Entity("DataAccessLayer.Models.ImageCapture", b =>
                 {
@@ -54,10 +54,10 @@ namespace DataAccessLayer.Migrations
                     b.Property<double>("LightMin")
                         .HasColumnType("REAL");
 
-                    b.Property<TimeSpan>("LightOffTime")
+                    b.Property<DateTime>("LightOffTime")
                         .HasColumnType("TEXT");
 
-                    b.Property<TimeSpan>("LightOnTime")
+                    b.Property<DateTime>("LightOnTime")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")

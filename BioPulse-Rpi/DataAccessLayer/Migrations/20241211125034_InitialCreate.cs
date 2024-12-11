@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataAccessLayer.Migrations
 {
     /// <inheritdoc />
-    public partial class CleanModels : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -36,8 +36,8 @@ namespace DataAccessLayer.Migrations
                     PhMax = table.Column<double>(type: "REAL", nullable: false),
                     TemperatureMin = table.Column<double>(type: "REAL", nullable: false),
                     TemperatureMax = table.Column<double>(type: "REAL", nullable: false),
-                    LightOnTime = table.Column<TimeSpan>(type: "TEXT", nullable: false),
-                    LightOffTime = table.Column<TimeSpan>(type: "TEXT", nullable: false),
+                    LightOnTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    LightOffTime = table.Column<DateTime>(type: "TEXT", nullable: false),
                     LightMin = table.Column<double>(type: "REAL", nullable: false),
                     LightMax = table.Column<double>(type: "REAL", nullable: false),
                     EcMin = table.Column<double>(type: "REAL", nullable: false),

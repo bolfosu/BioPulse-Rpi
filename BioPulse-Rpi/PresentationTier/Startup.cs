@@ -8,21 +8,30 @@ using System;
 using System.IO;
 using DataAccessLayer;
 using DataAccessLayer.Models;
+using Microsoft.Extensions.Configuration;
 
 public class Startup
+
 {
-    public void ConfigureServices(IServiceCollection services)
+    private readonly IConfiguration _configuration;
+    public Startup(IConfiguration configuration)
     {
-        // Get the database path relative to the DataAccessLayer directory
-        var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\DataAccessLayer\hydroponicsystem.db");
-        var fullPath = Path.GetFullPath(dbPath);
+        _configuration = configuration;
+    }
+    public void ConfigureServices(IServiceCollection services)
+    {// Retrieve the database path from configuration
+        string dbPath = _configuration["DatabaseSettings:DatabasePath"];
+        if (string.IsNullOrEmpty(dbPath))
+        {
+            // Fallback or handle missing path scenario
+            dbPath = "hydroponicsystem.db";
+        }
 
-        // Log the database path
-        Console.WriteLine($"[Startup] Database file path: {fullPath}");
-
-        // Add DbContext
+        // Register DbContext using the retrieved path
         services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlite($"Data Source={fullPath}"));
+        {
+            options.UseSqlite($"Data Source={dbPath}");
+        });
 
         // Register views
         services.AddSingleton<MainWindow>();
