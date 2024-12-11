@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
+    <RuntimeIdentifiers>linux-arm;linux-arm</RuntimeIdentifiers>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
@@ -17,6 +18,11 @@
     <None Remove="hydroponicsystem.db-shm" />
     <None Remove="hydroponicsystem.db-wal" />
   </ItemGroup>
+<ItemGroup>
+  <Content Include="..\DataAccessLayer\hydroponicsystem.db" CopyToOutputDirectory="Always" />
+</ItemGroup>
+
+
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.11.0" />
