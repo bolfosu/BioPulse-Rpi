@@ -3,9 +3,13 @@ name: .NET
 
 on:
   push:
-    branches: [ "master" ]
+    branches: 
+    - master
+    - develop
   pull_request:
-    branches: [ "master" ]
+    branches: 
+    - master
+    - develop
 
 jobs:
   build:
@@ -17,7 +21,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 7.0.x
+        dotnet-version: 8.0.x
     - name: Restore dependencies
       run: dotnet restore BioPulse-Rpi/BioPulse-Rpi.sln
       working-directory: ../BioPulse-Rpi
