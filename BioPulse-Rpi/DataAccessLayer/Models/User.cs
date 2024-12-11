@@ -18,7 +18,6 @@
         // Optional phone number
         public string? PhoneNumber { get; set; }
 
-        // Navigation property for associated plant profiles
-        public virtual ICollection<PlantProfile> PlantProfiles { get; set; }
+   
     }
 }

@@ -11,13 +11,34 @@ using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
+
 
 public class Startup
+
 {
-
-
-    public void ConfigureServices(IServiceCollection services)
+    private readonly IConfiguration _configuration;
+    public Startup(IConfiguration configuration)
     {
+        _configuration = configuration;
+    }
+    public void ConfigureServices(IServiceCollection services)
+    {   
+        // Retrieve the database path from configurationf
+        string dbPath = _configuration["DatabaseSettings:DatabasePath"];
+        if (string.IsNullOrEmpty(dbPath))
+        {
+            // Fallback or handle missing path scenario
+            dbPath = "hydroponicsystem.db";
+        }
+
+
+        // Register DbContext using the retrieved path
+        services.AddDbContext<AppDbContext>(options =>
+        {
+            options.UseSqlite($"Data Source={dbPath}");
+        });
+        
         services.AddControllers();
 
         // Add Swagger
@@ -39,16 +60,6 @@ public class Startup
                     .AllowAnyHeader(); // Allow all headers
             });
         });
-        // Get the database path relative to the DataAccessLayer directory
-        var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\DataAccessLayer\hydroponicsystem.db");
-        var fullPath = Path.GetFullPath(dbPath);
-
-        // Log the database path
-        Console.WriteLine($"[Startup] Database file path: {fullPath}");
-
-        // Add DbContext
-        services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlite($"Data Source={fullPath}"));
 
         // Register views
         services.AddSingleton<MainWindow>();
@@ -77,9 +88,8 @@ public class Startup
         services.AddTransient<LoginViewModel>();
         services.AddTransient<RegistrationViewModel>();
         services.AddTransient<PasswordRecoveryViewModel>();
-        services.AddSingleton<DashboardViewModel>();
-        services.AddSingleton<DeviceSettingsViewModel>();
-        services.AddSingleton<UserSettingsViewModel>();
+        
+        
        
     }
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

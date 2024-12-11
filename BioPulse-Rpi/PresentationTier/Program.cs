@@ -1,17 +1,20 @@
 ﻿using System;
 using Avalonia;
 using Avalonia.ReactiveUI;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Hosting;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 
 namespace PresentationTier
 {
     internal class Program
     {
+        [STAThread]
         public static void Main(string[] args)
         {
             try
@@ -65,6 +68,7 @@ namespace PresentationTier
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.ConfigureKestrel(options =>
@@ -77,7 +81,17 @@ namespace PresentationTier
                 {
                     logging.ClearProviders();
                     logging.AddConsole(); // Adds console logging
-                });
+                        }
+                .ConfigureServices((hostContext, services) =>
+                {
+                    // Retrieve configuration from hostContext
+                    var configuration = hostContext.Configuration;
+
+                    // Pass configuration into Startup
+                    var startup = new Startup(configuration);
+                    startup.ConfigureServices(services);
+
+                }));
     
         
 

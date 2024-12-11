@@ -3,14 +3,26 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
+    <RuntimeIdentifiers>linux-arm;linux-arm</RuntimeIdentifiers>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="DataSources\**" />
+    <EmbeddedResource Remove="DataSources\**" />
+    <None Remove="DataSources\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Remove="DataAccessLayer.csproj.Backup.tmp" />
     <None Remove="hydroponicsystem.db-shm" />
     <None Remove="hydroponicsystem.db-wal" />
   </ItemGroup>
+<ItemGroup>
+  <Content Include="..\DataAccessLayer\hydroponicsystem.db" CopyToOutputDirectory="Always" />
+</ItemGroup>
+
+
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.11.0" />
@@ -35,7 +47,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DataSources\" />
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>
