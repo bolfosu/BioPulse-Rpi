@@ -90,5 +90,17 @@ namespace LogicLayer.Services
             var hash = sha256.ComputeHash(bytes);
             return Convert.ToBase64String(hash);
         }
+        
+        public async Task<User> GetByIdAsync(int id)
+        {
+            var user = await _userRepo.GetByIdAsync(id);
+            if (user == null)
+            {
+                Console.WriteLine($"No user found with ID: {id}");
+                throw new KeyNotFoundException($"No user found with ID: {id}");
+            }
+            Console.WriteLine($"Retrieved user: {user.Name}, ID: {user.Id}");
+            return user;
+        }
     }
 }
