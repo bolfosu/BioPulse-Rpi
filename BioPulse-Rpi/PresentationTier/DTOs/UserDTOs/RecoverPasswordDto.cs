@@ -1,4 +1,4 @@
-﻿namespace PresentationTier.DTOs;
+﻿namespace PresentationTier.DTOs.UserDTOs;
 
 public class RecoverPasswordDto
 {

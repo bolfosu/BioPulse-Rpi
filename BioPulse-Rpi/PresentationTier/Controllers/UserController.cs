@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using LogicLayer.Services;
 using Microsoft.AspNetCore.Mvc;
-using PresentationTier.DTOs;
+using PresentationTier.DTOs.UserDTOs;
 namespace PresentationTier.Controllers;
 
 [Route("api/users")] // Ensure this route is defined

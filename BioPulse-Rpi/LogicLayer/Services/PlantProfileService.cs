@@ -81,5 +81,13 @@ namespace LogicLayer.Services
                 actuatorLogic[sensor.SensorType.ToString()].Invoke();
             }
         }
+        public async Task<PlantProfile> GetPlantProfileByIdAsync(int id)
+        {
+            var profile = await _plantProfileRepo.GetByIdAsync(id);
+            if (profile == null)
+                throw new KeyNotFoundException($"Plant profile with ID {id} not found.");
+
+            return profile;
+        }
     }
 }
