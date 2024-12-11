@@ -10,11 +10,12 @@
         public string SecurityAnswerHash { get; set; }
         public string? PhoneNumber { get; set; }
 
-        public virtual ICollection<PlantProfile> PlantProfiles { get; set; }
 
+        
         // Notification Settings
         public bool IsWaterLevelLowNotificationEnabled { get; set; }
         public bool IsSensorNotChangingNotificationEnabled { get; set; }
         public bool IsSensorOffNotificationEnabled { get; set; }
+
     }
 }

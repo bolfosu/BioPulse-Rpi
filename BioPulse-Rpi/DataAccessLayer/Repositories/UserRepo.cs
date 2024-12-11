@@ -94,5 +94,22 @@ namespace DataAccessLayer.Repositories
                 throw;
             }
         }
+        public async Task<User?> GetByIdAsync(int id)
+        {
+            try
+            {
+                Console.WriteLine($"Searching for user by ID: {id}");
+                var user = await GetDbSet().FindAsync(id);
+                Console.WriteLine(user == null
+                    ? $"No user found with ID: {id}"
+                    : $"User found: {user.Name}, ID: {user.Id}");
+                return user;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception in GetByIdAsync: {ex.Message}");
+                throw;
+            }
+        }
     }
 }

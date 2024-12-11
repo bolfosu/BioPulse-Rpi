@@ -14,7 +14,7 @@ namespace DataAccessLayer.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.0");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
 
             modelBuilder.Entity("DataAccessLayer.Models.ImageCapture", b =>
                 {
@@ -51,10 +51,10 @@ namespace DataAccessLayer.Migrations
                     b.Property<double>("LightMin")
                         .HasColumnType("REAL");
 
-                    b.Property<TimeSpan>("LightOffTime")
+                    b.Property<DateTime>("LightOffTime")
                         .HasColumnType("TEXT");
 
-                    b.Property<TimeSpan>("LightOnTime")
+                    b.Property<DateTime>("LightOnTime")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
@@ -73,12 +73,7 @@ namespace DataAccessLayer.Migrations
                     b.Property<double>("TemperatureMin")
                         .HasColumnType("REAL");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("PlantProfiles");
                 });
@@ -147,18 +142,6 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Models.PlantProfile", b =>
-                {
-                    b.HasOne("DataAccessLayer.Models.User", null)
-                        .WithMany("PlantProfiles")
-                        .HasForeignKey("UserId");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Models.User", b =>
-                {
-                    b.Navigation("PlantProfiles");
                 });
 #pragma warning restore 612, 618
         }

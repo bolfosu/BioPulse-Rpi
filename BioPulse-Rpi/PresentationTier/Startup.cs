@@ -8,21 +8,58 @@ using System;
 using System.IO;
 using DataAccessLayer;
 using DataAccessLayer.Models;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
+
 
 public class Startup
+
 {
-    public void ConfigureServices(IServiceCollection services)
+    private readonly IConfiguration _configuration;
+    public Startup(IConfiguration configuration)
     {
-        // Get the database path relative to the DataAccessLayer directory
-        var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\DataAccessLayer\hydroponicsystem.db");
-        var fullPath = Path.GetFullPath(dbPath);
+        _configuration = configuration;
+    }
+    public void ConfigureServices(IServiceCollection services)
+    {   
+        // Retrieve the database path from configurationf
+        string dbPath = _configuration["DatabaseSettings:DatabasePath"];
+        if (string.IsNullOrEmpty(dbPath))
+        {
+            // Fallback or handle missing path scenario
+            dbPath = "hydroponicsystem.db";
+        }
 
-        // Log the database path
-        Console.WriteLine($"[Startup] Database file path: {fullPath}");
 
-        // Add DbContext
+        // Register DbContext using the retrieved path
         services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlite($"Data Source={fullPath}"));
+        {
+            options.UseSqlite($"Data Source={dbPath}");
+        });
+        
+        services.AddControllers();
+
+        // Add Swagger
+        services.AddSwaggerGen(c =>
+        {
+            c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+            {
+                Title = "BioPulse API",
+                Version = "v1",
+                Description = "API for managing BioPulse features"
+            });
+        });
+        services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll", builder =>
+            {
+                builder.AllowAnyOrigin() // Allow all origins
+                    .AllowAnyMethod() // Allow all HTTP methods (GET, POST, etc.)
+                    .AllowAnyHeader(); // Allow all headers
+            });
+        });
 
         // Register views
         services.AddSingleton<MainWindow>();
@@ -51,9 +88,35 @@ public class Startup
         services.AddTransient<LoginViewModel>();
         services.AddTransient<RegistrationViewModel>();
         services.AddTransient<PasswordRecoveryViewModel>();
-        services.AddSingleton<DashboardViewModel>();
-        services.AddSingleton<DeviceSettingsViewModel>();
-        services.AddSingleton<UserSettingsViewModel>();
+        
+        
        
     }
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+
+            // Enable Swagger
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "BioPulse API v1");
+                c.RoutePrefix = string.Empty;
+            });
+        }
+
+        // Enable CORS
+        app.UseCors("AllowAll");
+
+        app.UseRouting();
+
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+        });
+    }
+
+
 }
