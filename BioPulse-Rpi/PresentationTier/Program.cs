@@ -68,7 +68,6 @@ namespace PresentationTier
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.ConfigureKestrel(options =>
@@ -80,18 +79,16 @@ namespace PresentationTier
                 .ConfigureLogging(logging =>
                 {
                     logging.ClearProviders();
-                    logging.AddConsole(); // Adds console logging
-                        }
+                    logging.AddConsole();
+                })
                 .ConfigureServices((hostContext, services) =>
                 {
-                    // Retrieve configuration from hostContext
                     var configuration = hostContext.Configuration;
 
-                    // Pass configuration into Startup
                     var startup = new Startup(configuration);
                     startup.ConfigureServices(services);
+                });
 
-                }));
     
         
 
