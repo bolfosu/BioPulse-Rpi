@@ -12,10 +12,6 @@
 
 
         
-        // Notification Settings
-        public bool IsWaterLevelLowNotificationEnabled { get; set; }
-        public bool IsSensorNotChangingNotificationEnabled { get; set; }
-        public bool IsSensorOffNotificationEnabled { get; set; }
 
     }
 }
