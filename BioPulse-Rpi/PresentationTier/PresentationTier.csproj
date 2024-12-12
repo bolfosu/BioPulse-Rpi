@@ -107,6 +107,7 @@
         <PackageReference Include="System.Net.Http" Version="4.3.4" />
         <PackageReference Include="System.Reactive" Version="6.0.1" />
         <PackageReference Include="System.Text.Json" Version="9.0.0" />
+        <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.0" />
 
         <!-- Dependency injection and hosting -->
     </ItemGroup>

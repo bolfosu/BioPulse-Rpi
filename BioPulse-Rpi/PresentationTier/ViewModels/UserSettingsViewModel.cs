@@ -1,8 +1,7 @@
-﻿using ReactiveUI;
+﻿using LogicLayer.Services;
+using ReactiveUI;
 using System.Reactive;
 using System.Threading.Tasks;
-using LogicLayer.Services;
-using DataAccessLayer.Models;
 using System;
 
 namespace PresentationTier.ViewModels
@@ -11,86 +10,103 @@ namespace PresentationTier.ViewModels
     {
         private readonly UserManagementService _userService;
 
-        private string _email;
-        private string _password;
-        private string _securityQuestion;
-        private string _securityAnswer;
-        private bool _isWaterLevelLowNotificationEnabled;
-        private bool _isSensorNotChangingNotificationEnabled;
-        private bool _isSensorOffNotificationEnabled;
+        private string _newEmail;
+        private string _repeatEmail;
+        private string _oldPassword;
+        private string _newPassword;
+        private string _repeatPassword;
+        private string _newSecurityQuestion;
+        private string _newSecurityAnswer;
+        private string _errorMessage;
+
+        public string NewEmail
+        {
+            get => _newEmail;
+            set => this.RaiseAndSetIfChanged(ref _newEmail, value);
+        }
+
+        public string RepeatEmail
+        {
+            get => _repeatEmail;
+            set => this.RaiseAndSetIfChanged(ref _repeatEmail, value);
+        }
+
+        public string OldPassword
+        {
+            get => _oldPassword;
+            set => this.RaiseAndSetIfChanged(ref _oldPassword, value);
+        }
+
+        public string NewPassword
+        {
+            get => _newPassword;
+            set => this.RaiseAndSetIfChanged(ref _newPassword, value);
+        }
+
+        public string RepeatPassword
+        {
+            get => _repeatPassword;
+            set => this.RaiseAndSetIfChanged(ref _repeatPassword, value);
+        }
+
+        public string NewSecurityQuestion
+        {
+            get => _newSecurityQuestion;
+            set => this.RaiseAndSetIfChanged(ref _newSecurityQuestion, value);
+        }
+
+        public string NewSecurityAnswer
+        {
+            get => _newSecurityAnswer;
+            set => this.RaiseAndSetIfChanged(ref _newSecurityAnswer, value);
+        }
+
+        public string ErrorMessage
+        {
+            get => _errorMessage;
+            set => this.RaiseAndSetIfChanged(ref _errorMessage, value);
+        }
+
+        public ReactiveCommand<Unit, Unit> SaveCommand { get; }
 
         public UserSettingsViewModel(UserManagementService userService)
         {
             _userService = userService;
 
-            SaveSettingsCommand = ReactiveCommand.CreateFromTask(SaveSettingsAsync);
+            SaveCommand = ReactiveCommand.CreateFromTask(SaveSettingsAsync);
         }
-
-        public string Email
-        {
-            get => _email;
-            set => this.RaiseAndSetIfChanged(ref _email, value);
-        }
-
-        public string Password
-        {
-            get => _password;
-            set => this.RaiseAndSetIfChanged(ref _password, value);
-        }
-
-        public string SecurityQuestion
-        {
-            get => _securityQuestion;
-            set => this.RaiseAndSetIfChanged(ref _securityQuestion, value);
-        }
-
-        public string SecurityAnswer
-        {
-            get => _securityAnswer;
-            set => this.RaiseAndSetIfChanged(ref _securityAnswer, value);
-        }
-
-        public bool IsWaterLevelLowNotificationEnabled
-        {
-            get => _isWaterLevelLowNotificationEnabled;
-            set => this.RaiseAndSetIfChanged(ref _isWaterLevelLowNotificationEnabled, value);
-        }
-
-        public bool IsSensorNotChangingNotificationEnabled
-        {
-            get => _isSensorNotChangingNotificationEnabled;
-            set => this.RaiseAndSetIfChanged(ref _isSensorNotChangingNotificationEnabled, value);
-        }
-
-        public bool IsSensorOffNotificationEnabled
-        {
-            get => _isSensorOffNotificationEnabled;
-            set => this.RaiseAndSetIfChanged(ref _isSensorOffNotificationEnabled, value);
-        }
-
-        public ReactiveCommand<Unit, Unit> SaveSettingsCommand { get; }
 
         private async Task SaveSettingsAsync()
         {
-            var user = new User
+            try
             {
-                Email = Email,
-                PasswordHash = HashPassword(Password), // Ensure hashing
-                SecurityQuestion = SecurityQuestion,
-                SecurityAnswerHash = HashPassword(SecurityAnswer),
-                IsWaterLevelLowNotificationEnabled = IsWaterLevelLowNotificationEnabled,
-                IsSensorNotChangingNotificationEnabled = IsSensorNotChangingNotificationEnabled,
-                IsSensorOffNotificationEnabled = IsSensorOffNotificationEnabled
-            };
+                if (!string.IsNullOrEmpty(NewEmail) && NewEmail != RepeatEmail)
+                {
+                    ErrorMessage = "Emails do not match.";
+                    return;
+                }
 
-            await _userService.UpdateUserSettingsAsync(user);
-        }
+                if (!string.IsNullOrEmpty(NewPassword) && NewPassword != RepeatPassword)
+                {
+                    ErrorMessage = "Passwords do not match.";
+                    return;
+                }
 
-        private string HashPassword(string password)
-        {
-            using var sha256 = System.Security.Cryptography.SHA256.Create();
-            var bytes = System.Text.Encoding.UTF8.GetBytes(password);
-            return Convert.ToBase64String(sha256.ComputeHash(bytes));
+                await _userService.UpdateUserSettingsAsync(
+                    userId: 1, // Replace with the actual logged-in user ID
+                    newEmail: NewEmail,
+                    newPassword: !string.IsNullOrEmpty(NewPassword) ? NewPassword : null,
+                    newPhoneNumber: null, // Add phone number field if needed
+                    newSecurityQuestion: NewSecurityQuestion,
+                    newSecurityAnswer: NewSecurityAnswer
+                );
+
+                ErrorMessage = "Settings updated successfully.";
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+            }
         }
     }
 }

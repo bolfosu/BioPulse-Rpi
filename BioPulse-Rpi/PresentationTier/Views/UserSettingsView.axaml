@@ -1,10 +1,30 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PresentationTier.Views.UserSettingsView">
-	<Grid>
-		<TextBlock Text="Welcome to user settings!" HorizontalAlignment="Center" VerticalAlignment="Center" />
+	<Grid Margin="20">
+		<ScrollViewer VerticalScrollBarVisibility="Auto">
+			<StackPanel Spacing="10">
+				<TextBlock Text="User Settings" FontSize="24" FontWeight="Bold" />
+
+				<TextBox Watermark="New Email" Text="{Binding NewEmail}" />
+				<TextBox Watermark="Repeat Email" Text="{Binding RepeatEmail}" />
+
+				<TextBox Watermark="Old Password" Text="{Binding OldPassword}" />
+				<TextBox Watermark="New Password" Text="{Binding NewPassword}" />
+				<TextBox Watermark="Repeat Password" Text="{Binding RepeatPassword}" />
+
+				<TextBox Watermark="New Security Question" Text="{Binding NewSecurityQuestion}" />
+				<TextBox Watermark="New Security Answer" Text="{Binding NewSecurityAnswer}" />
+
+				<TextBlock Text="Notification Settings" FontSize="24" FontWeight="Bold" />
+				<CheckBox Content="Notify on Low water level" IsChecked="{Binding LowWaterLevelNotifications}" />
+				<CheckBox Content="Notify when Sensor is Off" IsChecked="{Binding SensorOffNotifications}" />
+				<CheckBox Content="Notify when Sensor Data does not change" IsChecked="{Binding SensorNotChangingNotifications}" />
+
+				<Button Content="Save" Command="{Binding SaveCommand}" />
+
+				<TextBlock Text="{Binding ErrorMessage}" Foreground="Red" />
+			</StackPanel>
+		</ScrollViewer>
 	</Grid>
 </UserControl>
