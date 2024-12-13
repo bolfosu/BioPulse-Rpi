@@ -14,7 +14,7 @@ namespace DataAccessLayer.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
+            modelBuilder.HasAnnotation("ProductVersion", "8.0.0");
 
             modelBuilder.Entity("DataAccessLayer.Models.ImageCapture", b =>
                 {
@@ -78,39 +78,6 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("PlantProfiles");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Models.Sensor", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<byte>("Address")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsWireless")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<double>("LastReading")
-                        .HasColumnType("REAL");
-
-                    b.Property<DateTime>("LastReadingTime")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("SensorType")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Sensors");
-                });
-
             modelBuilder.Entity("DataAccessLayer.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -119,6 +86,15 @@ namespace DataAccessLayer.Migrations
 
                     b.Property<string>("Email")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsSensorNotChangingNotificationEnabled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsSensorOffNotificationEnabled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsWaterLevelLowNotificationEnabled")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -142,6 +118,88 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Sensor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ConnectionDetails")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("HardwareAddress")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsWireless")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Metadata")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("SensorType")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SensorType");
+
+                    b.ToTable("Sensors");
+                });
+
+            modelBuilder.Entity("SensorReading", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Metadata")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("SensorId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double?>("Value")
+                        .HasColumnType("REAL");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SensorId");
+
+                    b.HasIndex("Timestamp");
+
+                    b.ToTable("SensorReadings");
+                });
+
+            modelBuilder.Entity("SensorReading", b =>
+                {
+                    b.HasOne("Sensor", "Sensor")
+                        .WithMany("SensorReadings")
+                        .HasForeignKey("SensorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Sensor");
+                });
+
+            modelBuilder.Entity("Sensor", b =>
+                {
+                    b.Navigation("SensorReadings");
                 });
 #pragma warning restore 612, 618
         }

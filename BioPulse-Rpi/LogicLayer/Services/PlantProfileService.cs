@@ -49,38 +49,7 @@ namespace LogicLayer.Services
             await _plantProfileRepo.DeleteAsync(profileId);
         }
 
-        // Logic for interacting with actuators based on thresholds
-        public void HandleSensorReadings(Sensor sensor)
-        {
-            Console.WriteLine($"Handling sensor: {sensor.Name}, LastReading: {sensor.LastReading}");
-
-            if (!sensor.IsEnabled) return;
-
-            // Example: Interact with actuators based on sensor thresholds
-            var actuatorLogic = new Dictionary<string, Action>
-            {
-                ["Temperature"] = () =>
-                {
-                    if (sensor.LastReading < 18)
-                        Console.WriteLine("Turning on heater...");
-                    else if (sensor.LastReading > 24)
-                        Console.WriteLine("Turning on cooler...");
-                },
-                ["pH"] = () =>
-                {
-                    if (sensor.LastReading < 5.5)
-                        Console.WriteLine("Adding pH buffer...");
-                    else if (sensor.LastReading > 6.5)
-                        Console.WriteLine("Adding acid...");
-                },
-                // Add additional sensor-logic mappings
-            };
-
-            if (actuatorLogic.ContainsKey(sensor.SensorType.ToString()))
-            {
-                actuatorLogic[sensor.SensorType.ToString()].Invoke();
-            }
-        }
+       
         public async Task<PlantProfile> GetPlantProfileByIdAsync(int id)
         {
             var profile = await _plantProfileRepo.GetByIdAsync(id);

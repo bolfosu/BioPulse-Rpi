@@ -18,9 +18,6 @@
     <None Remove="hydroponicsystem.db-shm" />
     <None Remove="hydroponicsystem.db-wal" />
   </ItemGroup>
-<ItemGroup>
-  <Content Include="..\DataAccessLayer\hydroponicsystem.db" CopyToOutputDirectory="Always" />
-</ItemGroup>
 
 
 
