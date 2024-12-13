@@ -95,4 +95,86 @@ public class UserController : ControllerBase
         }
     }
     
+    [HttpPut("{id}/email")]
+    public async Task<IActionResult> UpdateEmail(int id, [FromBody] UpdateEmailDto dto)
+    {
+        try
+        {
+            await _userService.UpdateUserSettingsAsync(
+                userId: id,
+                newEmail: dto.NewEmail,
+                newPassword: null,
+                newPhoneNumber: null,
+                newSecurityQuestion: null,
+                newSecurityAnswer: null
+            );
+
+            return Ok("Email updated successfully.");
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"An error occurred while updating the email: {ex.Message}");
+        }
+    }
+        
+        [HttpPut("{id}/password")]
+        public async Task<IActionResult> UpdatePassword(int id, [FromBody] UpdatePasswordDto dto)
+        {
+            try
+            {
+                await _userService.UpdateUserSettingsAsync(
+                    userId: id,
+                    newEmail: null,
+                    newPassword: dto.NewPassword,
+                    newPhoneNumber: null,
+                    newSecurityQuestion: null,
+                    newSecurityAnswer: null
+                );
+
+                return Ok("Password updated successfully.");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest($"An error occurred while updating the password: {ex.Message}");
+            }
+        }
+
+    [HttpPut("{id}/security")]
+        public async Task<IActionResult> UpdateSecurity(int id, [FromBody] UpdateSecurityDto dto)
+        {
+            try
+            {
+                await _userService.UpdateUserSettingsAsync(
+                    userId: id,
+                    newEmail: null,
+                    newPassword: null,
+                    newPhoneNumber: null,
+                    newSecurityQuestion: dto.NewSecurityQuestion,
+                    newSecurityAnswer: dto.NewSecurityAnswer
+                );
+
+                return Ok("Security question and answer updated successfully.");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest($"An error occurred while updating the security information: {ex.Message}");
+            }
+        }
+    
 }
