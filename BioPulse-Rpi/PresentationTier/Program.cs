@@ -6,9 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Hosting;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using System.Threading;
 
 namespace PresentationTier
 {
@@ -52,7 +50,7 @@ namespace PresentationTier
                     .ConfigureWebHostDefaults(webBuilder =>
                     {
                         webBuilder.UseStartup<Startup>();
-                        webBuilder.UseUrls("http://localhost:5000");
+                        webBuilder.UseUrls("http://0.0.0.0:5000"); // Bind to all network interfaces
                     })
                     .Build();
 
@@ -72,7 +70,7 @@ namespace PresentationTier
                 {
                     webBuilder.ConfigureKestrel(options =>
                     {
-                        options.ListenLocalhost(5000); // Explicitly bind to localhost:5000
+                        options.ListenAnyIP(5000); // Bind to all network interfaces (HTTP)
                     });
                     webBuilder.UseStartup<Startup>();
                 })
@@ -88,9 +86,6 @@ namespace PresentationTier
                     var startup = new Startup(configuration);
                     startup.ConfigureServices(services);
                 });
-
-    
-        
 
         public static AppBuilder BuildAvaloniaApp(IHost host) =>
             AppBuilder.Configure<App>()

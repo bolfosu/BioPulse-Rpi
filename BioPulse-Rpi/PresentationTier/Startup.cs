@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
+using System.Linq;
 
 
 public class Startup
@@ -69,8 +70,10 @@ public class Startup
         services.AddSingleton<DeviceSettingsViewModel>();
         services.AddSingleton<UserSettingsViewModel>();
         services.AddSingleton<PlantProfileViewModel>();
+        
 
         services.AddSingleton<PlantProfileView>();
+        services.AddSingleton<UserSettingsView>();
 
 
      
@@ -83,6 +86,8 @@ public class Startup
         // Register services
         services.AddSingleton<UserManagementService>();
         services.AddSingleton<PlantProfileService>();
+        services.AddSingleton<BluetoothService>();
+        services.AddScoped<DeviceService>();
 
         // Register ViewModels
         services.AddTransient<LoginViewModel>();
@@ -112,9 +117,19 @@ public class Startup
 
         app.UseRouting();
 
+        // Log registered routes
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
+
+            var routeEndpoints = endpoints.DataSources
+                .SelectMany(ds => ds.Endpoints)
+                .OfType<Microsoft.AspNetCore.Routing.RouteEndpoint>();
+
+            foreach (var route in routeEndpoints)
+            {
+                Console.WriteLine($"Registered route: {route.RoutePattern.RawText}");
+            }
         });
     }
 
