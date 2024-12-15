@@ -1,6 +1,7 @@
-﻿using DataAccessLayer.Models;
-using DataAccessLayer.Repositories;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using DataAccessLayer.Models;
+using DataAccessLayer.Repositories;
 
 namespace LogicLayer.Services
 {
@@ -27,8 +28,8 @@ namespace LogicLayer.Services
                     Name = name,
                     IsEnabled = true,
                     IsWireless = true,
-                    HardwareAddress = devicePath, // Store the device path for BlueZ
-                    SensorType = SensorType.Temperature, // Placeholder for now
+                    HardwareAddress = devicePath,
+                    SensorType = SensorType.Temperature,
                     Metadata = "{ \"manufacturer\": \"ESP32\" }"
                 };
 
@@ -58,7 +59,7 @@ namespace LogicLayer.Services
             if (sensor == null || !sensor.IsWireless)
                 return null;
 
-            // Update with specific service/characteristic paths for BlueZ
+            // Simulate reading data from the Bluetooth device
             var data = await _bluetoothService.ReadCharacteristicAsync(sensor.HardwareAddress);
             return data;
         }
@@ -69,7 +70,6 @@ namespace LogicLayer.Services
             if (sensor == null || !sensor.IsWireless)
                 return false;
 
-            // BlueZ does not require explicit disconnection in many cases
             sensor.ConnectionDetails = "Disconnected";
             await _sensorRepository.UpdateAsync(sensor);
 
