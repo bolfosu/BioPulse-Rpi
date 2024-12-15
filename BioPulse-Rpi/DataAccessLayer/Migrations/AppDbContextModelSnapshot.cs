@@ -130,17 +130,7 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("HardwareAddress")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsWireless")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Metadata")
+                    b.Property<string>("ExternalSensorId")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -163,10 +153,6 @@ namespace DataAccessLayer.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("Metadata")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
 
                     b.Property<int>("SensorId")
                         .HasColumnType("INTEGER");

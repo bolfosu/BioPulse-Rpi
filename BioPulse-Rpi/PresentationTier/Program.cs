@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Hosting;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using LogicLayer.Services;
 
 namespace PresentationTier
 {
@@ -22,6 +23,7 @@ namespace PresentationTier
 
                 // Start Avalonia application
                 var host = CreateHostBuilder(args).Build();
+                StartBackgroundServices(host);
                 var appBuilder = BuildAvaloniaApp(host);
 
                 if (args.Contains("--drm"))
@@ -52,6 +54,11 @@ namespace PresentationTier
                         webBuilder.UseStartup<Startup>();
                         webBuilder.UseUrls("http://0.0.0.0:5000"); // Bind to all network interfaces
                     })
+                    .ConfigureLogging(logging =>
+                    {
+                        logging.ClearProviders();
+                        logging.AddConsole();
+                    })
                     .Build();
 
                 Console.WriteLine("API host running...");
@@ -61,6 +68,20 @@ namespace PresentationTier
             {
                 Console.WriteLine($"API host failed to start: {ex.Message}");
                 throw;
+            }
+        }
+
+        private static void StartBackgroundServices(IHost host)
+        {
+            try
+            {
+                using var scope = host.Services.CreateScope();
+                var i2cService = scope.ServiceProvider.GetRequiredService<I2cReadingService>();
+                Console.WriteLine("I2C reading service initialized and running.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error starting I2C service: {ex.Message}");
             }
         }
 

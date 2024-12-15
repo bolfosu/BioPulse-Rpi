@@ -18,11 +18,7 @@
     // Numeric representation of the reading's value.
 
 
-    public string Metadata { get; set; }
-    // Additional metadata for the reading, such as:
-    // - Units of measurement (e.g., °C, %, etc.)
-    // - Calibration data
-    // - Quality or error information.
+    
 
 
 }
