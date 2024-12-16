@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 using DataAccessLayer.Models;
 using DataAccessLayer.Repositories;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
 
 namespace LogicLayer.Services
 {
@@ -17,7 +19,10 @@ namespace LogicLayer.Services
         private readonly Dictionary<string, int> _sensorCache = new(StringComparer.OrdinalIgnoreCase); // Cache for known sensors
         private readonly SemaphoreSlim _semaphore = new(1, 1); // Semaphore for thread safety
 
-        public SensorDataIngestionService(IRepository<Sensor> sensorRepo, IRepository<SensorReading> sensorReadingRepo, ILogger<SensorDataIngestionService> logger)
+        public SensorDataIngestionService(
+            IRepository<Sensor> sensorRepo,
+            IRepository<SensorReading> sensorReadingRepo,
+            ILogger<SensorDataIngestionService> logger)
         {
             _sensorRepo = sensorRepo;
             _sensorReadingRepo = sensorReadingRepo;
@@ -26,7 +31,9 @@ namespace LogicLayer.Services
             InitializeCache().Wait(); // Initialize cache synchronously during startup
         }
 
-        // Initialize sensor cache
+        /// <summary>
+        /// Initializes the cache with all known sensors.
+        /// </summary>
         private async Task InitializeCache()
         {
             _logger.LogInformation("Loading sensors into cache...");
@@ -41,6 +48,10 @@ namespace LogicLayer.Services
             _logger.LogInformation("Sensor cache initialized with {Count} entries.", _sensorCache.Count);
         }
 
+        /// <summary>
+        /// Processes a JSON reading received from a sensor.
+        /// </summary>
+        /// <param name="jsonReading">The JSON string containing the sensor reading.</param>
         public async Task ProcessReadingAsync(string jsonReading)
         {
             await _semaphore.WaitAsync(); // Ensure only one thread processes at a time
@@ -54,8 +65,8 @@ namespace LogicLayer.Services
                     return;
                 }
 
-                // Validate sensor type
-                if (!Enum.TryParse<SensorType>(readingData.TYPE, out var sensorType))
+                // Validate sensor type (case-insensitive)
+                if (!Enum.TryParse<SensorType>(readingData.TYPE, true, out var sensorType))
                 {
                     _logger.LogWarning("Invalid sensor type '{TYPE}' in reading.", readingData.TYPE);
                     return;
@@ -67,7 +78,7 @@ namespace LogicLayer.Services
                     // Add new sensor if not known
                     var newSensor = new Sensor
                     {
-                        Name = $"Sensor_{readingData.SENSOR_ID}",
+                        Name = readingData.SENSOR_NAME ?? $"Sensor_{readingData.SENSOR_ID}",
                         ExternalSensorId = readingData.SENSOR_ID,
                         SensorType = sensorType,
                         ConnectionDetails = $"Generated at {DateTime.UtcNow}"
@@ -83,13 +94,17 @@ namespace LogicLayer.Services
                 var sensorReading = new SensorReading
                 {
                     SensorId = sensorId,
-                    Timestamp = readingData.TIMESTAMP,
+                    Timestamp = DateTime.UtcNow,
                     Value = readingData.VALUE
                 };
 
                 await _sensorReadingRepo.AddAsync(sensorReading);
                 _logger.LogInformation("Stored reading for SensorId {SensorId}: Value={Value}, Timestamp={Timestamp}",
-                    sensorId, readingData.VALUE, readingData.TIMESTAMP);
+                    sensorId, readingData.VALUE, sensorReading.Timestamp);
+            }
+            catch (JsonException jsonEx)
+            {
+                _logger.LogError(jsonEx, "JSON deserialization error for sensor reading: {Json}", jsonReading);
             }
             catch (Exception ex)
             {
@@ -101,13 +116,22 @@ namespace LogicLayer.Services
             }
         }
 
-        // DTO for deserializing sensor reading JSON
+        /// <summary>
+        /// Data Transfer Object (DTO) for deserializing sensor reading JSON.
+        /// </summary>
         private class SensorReadingDto
         {
+            [JsonPropertyName("id")]
             public string SENSOR_ID { get; set; } // Sensor's unique identifier
+
+            [JsonPropertyName("sensor_name")]
+            public string SENSOR_NAME { get; set; } // Optional sensor name
+
+            [JsonPropertyName("type")]
             public string TYPE { get; set; } // Sensor type
+
+            [JsonPropertyName("Temp")]
             public double VALUE { get; set; } // Sensor reading value
-            public DateTime TIMESTAMP { get; set; } // Timestamp of the reading
         }
     }
 }

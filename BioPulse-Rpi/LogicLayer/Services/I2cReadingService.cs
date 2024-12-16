@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Device.I2c;
 using System.Text;
+using System.Threading;
 
 namespace LogicLayer.Services
 {
@@ -10,6 +12,7 @@ namespace LogicLayer.Services
         private readonly ILogger<I2cReadingService> _logger;
         private readonly I2cDevice _device;
         private readonly Timer _timer;
+        private readonly StringBuilder _buffer = new(); // Buffer for accumulating partial data
 
         public I2cReadingService(
             SensorDataIngestionService ingestionService,
@@ -33,11 +36,19 @@ namespace LogicLayer.Services
         {
             try
             {
-                var jsonReading = ReadJsonFromI2c();
+                string jsonReading = ReadJsonFromI2c();
                 if (!string.IsNullOrEmpty(jsonReading))
                 {
-                    await _ingestionService.ProcessReadingAsync(jsonReading);
-                    _logger.LogInformation("Processed I2C reading: {Reading}", jsonReading);
+                    // Validate and process data
+                    if (IsValidJson(jsonReading))
+                    {
+                        await _ingestionService.ProcessReadingAsync(jsonReading);
+                        _logger.LogInformation("Processed I2C reading: {Reading}", jsonReading);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Invalid JSON data received: {RawData}", jsonReading);
+                    }
                 }
             }
             catch (Exception ex)
@@ -56,12 +67,39 @@ namespace LogicLayer.Services
                 var rawData = Encoding.ASCII.GetString(buffer).TrimEnd('\0');
                 _logger.LogInformation("Raw I2C data: {RawData}", rawData);
 
-                return rawData;
+                // Append data to the buffer
+                _buffer.Append(rawData);
+
+                // Find the first and last JSON object boundaries
+                int startIndex = _buffer.ToString().IndexOf('{');
+                int endIndex = _buffer.ToString().LastIndexOf('}');
+                if (startIndex != -1 && endIndex > startIndex)
+                {
+                    // Extract and return complete JSON object
+                    var jsonString = _buffer.ToString(startIndex, endIndex - startIndex + 1);
+                    _buffer.Remove(0, endIndex + 1); // Remove processed data
+                    return jsonString;
+                }
+
+                return string.Empty; // No complete JSON object yet
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error reading from I2C device.");
                 return string.Empty;
+            }
+        }
+
+        private bool IsValidJson(string json)
+        {
+            try
+            {
+                System.Text.Json.JsonDocument.Parse(json);
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
     }
