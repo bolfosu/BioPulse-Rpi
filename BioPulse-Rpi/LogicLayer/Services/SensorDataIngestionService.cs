@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -13,27 +14,26 @@ namespace LogicLayer.Services
     public class SensorDataIngestionService
     {
         private readonly IRepository<Sensor> _sensorRepo;
-        private readonly IRepository<SensorReading> _sensorReadingRepo;
+        private readonly IRepository<PlantProfile> _plantProfileRepo;
+        private readonly ActuatorService _actuatorService;
         private readonly ILogger<SensorDataIngestionService> _logger;
-
-        private readonly Dictionary<string, int> _sensorCache = new(StringComparer.OrdinalIgnoreCase); // Cache for known sensors
-        private readonly SemaphoreSlim _semaphore = new(1, 1); // Semaphore for thread safety
+        private readonly Dictionary<string, int> _sensorCache = new(StringComparer.OrdinalIgnoreCase);
+        private readonly SemaphoreSlim _semaphore = new(1, 1);
 
         public SensorDataIngestionService(
             IRepository<Sensor> sensorRepo,
-            IRepository<SensorReading> sensorReadingRepo,
+            IRepository<PlantProfile> plantProfileRepo,
+            ActuatorService actuatorService,
             ILogger<SensorDataIngestionService> logger)
         {
             _sensorRepo = sensorRepo;
-            _sensorReadingRepo = sensorReadingRepo;
+            _plantProfileRepo = plantProfileRepo;
+            _actuatorService = actuatorService;
             _logger = logger;
 
-            InitializeCache().Wait(); // Initialize cache synchronously during startup
+            InitializeCache().Wait();
         }
 
-        /// <summary>
-        /// Initializes the cache with all known sensors.
-        /// </summary>
         private async Task InitializeCache()
         {
             _logger.LogInformation("Loading sensors into cache...");
@@ -48,90 +48,73 @@ namespace LogicLayer.Services
             _logger.LogInformation("Sensor cache initialized with {Count} entries.", _sensorCache.Count);
         }
 
-        /// <summary>
-        /// Processes a JSON reading received from a sensor.
-        /// </summary>
-        /// <param name="jsonReading">The JSON string containing the sensor reading.</param>
         public async Task ProcessReadingAsync(string jsonReading)
         {
-            await _semaphore.WaitAsync(); // Ensure only one thread processes at a time
+            await _semaphore.WaitAsync();
             try
             {
-                // Deserialize JSON into a DTO
                 var readingData = JsonSerializer.Deserialize<SensorReadingDto>(jsonReading);
-                if (readingData == null)
-                {
-                    _logger.LogWarning("Failed to parse sensor reading JSON.");
-                    return;
-                }
+                if (readingData == null) return;
 
-                // Validate sensor type (case-insensitive)
-                if (!Enum.TryParse<SensorType>(readingData.TYPE, true, out var sensorType))
-                {
-                    _logger.LogWarning("Invalid sensor type '{TYPE}' in reading.", readingData.TYPE);
-                    return;
-                }
+                var plantProfiles = await _plantProfileRepo.GetAllAsync();
+                var defaultProfile = plantProfiles.FirstOrDefault(p => p.IsDefault);
 
-                // Check if sensor is known
-                if (!_sensorCache.TryGetValue(readingData.SENSOR_ID, out int sensorId))
+                if (defaultProfile != null && Enum.TryParse<SensorType>(readingData.TYPE, true, out var sensorType))
                 {
-                    // Add new sensor if not known
-                    var newSensor = new Sensor
+                    switch (sensorType)
                     {
-                        Name = readingData.SENSOR_NAME ?? $"Sensor_{readingData.SENSOR_ID}",
-                        ExternalSensorId = readingData.SENSOR_ID,
-                        SensorType = sensorType,
-                        ConnectionDetails = $"Generated at {DateTime.UtcNow}"
-                    };
+                        case SensorType.Temp:
+                            if (readingData.VALUE > defaultProfile.TemperatureMax)
+                            {
+                                _logger.LogInformation("Temperature exceeded max threshold. Switching actuator ON.");
+                                await _actuatorService.SwitchOnAsync(1); // Example actuator ID
+                            }
+                            else if (readingData.VALUE < defaultProfile.TemperatureMin)
+                            {
+                                _logger.LogInformation("Temperature below min threshold. Switching actuator OFF.");
+                                await _actuatorService.SwitchOffAsync(1);
+                            }
+                            break;
 
-                    await _sensorRepo.AddAsync(newSensor);
-                    sensorId = newSensor.Id;
-                    _sensorCache[readingData.SENSOR_ID] = sensorId;
-                    _logger.LogInformation("New sensor created with ID {SensorId}.", sensorId);
+                        case SensorType.EC:
+                            if (readingData.VALUE > defaultProfile.EcMax)
+                            {
+                                _logger.LogInformation("EC exceeded max threshold. Switching actuator ON.");
+                                await _actuatorService.SwitchOnAsync(2); // Example actuator ID
+                            }
+                            else if (readingData.VALUE < defaultProfile.EcMin)
+                            {
+                                _logger.LogInformation("EC below min threshold. Switching actuator OFF.");
+                                await _actuatorService.SwitchOffAsync(2);
+                            }
+                            break;
+
+                        default:
+                            _logger.LogInformation("Sensor type '{SensorType}' does not have actuator logic implemented.", sensorType);
+                            break;
+                    }
                 }
-
-                // Create sensor reading
-                var sensorReading = new SensorReading
-                {
-                    SensorId = sensorId,
-                    Timestamp = DateTime.UtcNow,
-                    Value = readingData.VALUE
-                };
-
-                await _sensorReadingRepo.AddAsync(sensorReading);
-                _logger.LogInformation("Stored reading for SensorId {SensorId}: Value={Value}, Timestamp={Timestamp}",
-                    sensorId, readingData.VALUE, sensorReading.Timestamp);
             }
-            catch (JsonException jsonEx)
+            catch (JsonException ex)
             {
-                _logger.LogError(jsonEx, "JSON deserialization error for sensor reading: {Json}", jsonReading);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error processing sensor reading JSON: {Json}", jsonReading);
+                _logger.LogError(ex, "Failed to process sensor reading JSON: {Json}", jsonReading);
             }
             finally
             {
-                _semaphore.Release(); // Release semaphore lock
+                _semaphore.Release();
             }
         }
 
-        /// <summary>
-        /// Data Transfer Object (DTO) for deserializing sensor reading JSON.
-        /// </summary>
         private class SensorReadingDto
         {
             [JsonPropertyName("id")]
-            public string SENSOR_ID { get; set; } // Sensor's unique identifier
-
-            [JsonPropertyName("sensor_name")]
-            public string SENSOR_NAME { get; set; } // Optional sensor name
+            public string SENSOR_ID { get; set; }
 
             [JsonPropertyName("type")]
-            public string TYPE { get; set; } // Sensor type
+            public string TYPE { get; set; }
 
             [JsonPropertyName("Temp")]
-            public double VALUE { get; set; } // Sensor reading value
+            public double VALUE { get; set; }
         }
     }
 }
