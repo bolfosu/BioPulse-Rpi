@@ -88,7 +88,6 @@
         <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.2" />
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.2.2" />
         <FrameworkReference Include="Microsoft.AspNetCore.App" Version="2.2.8" />
-      
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
         <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.11.0" />
@@ -104,14 +103,11 @@
         <!-- Database and EF Core dependencies -->
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
-        <PackageReference Include="Moq" Version="4.20.72" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
-        <PackageReference Include="System.Device.Gpio" Version="3.2.0" />
         <PackageReference Include="System.Net.Http" Version="4.3.4" />
         <PackageReference Include="System.Reactive" Version="6.0.1" />
         <PackageReference Include="System.Text.Json" Version="9.0.0" />
-        <PackageReference Include="Tmds.DBus" Version="0.21.2" />
+        <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.0" />
 
         <!-- Dependency injection and hosting -->
     </ItemGroup>
@@ -122,15 +118,11 @@
         <ProjectReference Include="..\LogicLayer\LogicLayer.csproj" />
     </ItemGroup>
 
-	<ItemGroup>
+    <ItemGroup>
       <None Update="appsettings.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Properties\" />
-	</ItemGroup>
 
     
 

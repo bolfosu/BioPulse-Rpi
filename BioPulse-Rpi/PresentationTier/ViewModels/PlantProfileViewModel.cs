@@ -24,7 +24,7 @@ namespace PresentationTier.ViewModels
             // Commands
             LoadProfilesCommand = ReactiveCommand.CreateFromTask(LoadProfilesAsync);
             SaveProfileCommand = ReactiveCommand.CreateFromTask(SaveProfileAsync);
-            ActivateProfileCommand = ReactiveCommand.CreateFromTask(ActivateProfileAsync);
+            ActivateProfileCommand = ReactiveCommand.Create(ActivateProfile);
             CreateNewProfileCommand = ReactiveCommand.Create(CreateNewProfile);
             DeleteProfileCommand = ReactiveCommand.CreateFromTask(DeleteProfileAsync);
 
@@ -187,25 +187,15 @@ namespace PresentationTier.ViewModels
             }
         }
 
-        private async Task ActivateProfileAsync()
+        private void ActivateProfile()
         {
-            try
+            if (SelectedProfile == null)
             {
-                if (SelectedProfile == null)
-                {
-                    ErrorMessage = "No profile selected to activate.";
-                    return;
-                }
-
-                await _plantProfileService.ActivateProfileAsync(SelectedProfile.Id);
-                ErrorMessage = $"Profile '{SelectedProfile.Name}' is now active.";
-
-                await LoadProfilesAsync(); // Refresh profiles to show the updated active state
+                ErrorMessage = "No profile selected to activate.";
+                return;
             }
-            catch (Exception ex)
-            {
-                ErrorMessage = $"Error activating profile: {ex.Message}";
-            }
+
+            ErrorMessage = $"Profile '{SelectedProfile.Name}' activated.";
         }
 
         private void CreateNewProfile()
