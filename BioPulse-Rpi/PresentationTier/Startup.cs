@@ -5,17 +5,14 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PresentationTier.ViewModels;
-using PresentationTier.Views;
-using System;
-using System.Linq;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-
-
-
+using PresentationTier.ViewModels;
+using PresentationTier.Views;
+using System;
+using System.Linq;
 
 public class Startup
 {
@@ -48,6 +45,7 @@ public class Startup
             });
         });
 
+        // Configure CORS to allow any origin, method, and header
         services.AddCors(options =>
         {
             options.AddPolicy("AllowAll", builder =>
@@ -58,14 +56,13 @@ public class Startup
             });
         });
 
-        // Register views
+        // Register Views and ViewModels
         services.AddSingleton<MainWindow>();
         services.AddSingleton<MainWindowViewModel>();
         services.AddSingleton<DashboardViewModel>();
         services.AddSingleton<PlantProfileViewModel>();
         services.AddSingleton<DeviceSettingsViewModel>();
         services.AddSingleton<UserSettingsViewModel>();
-        services.AddSingleton<PlantProfileViewModel>();
         services.AddSingleton<PlantProfileView>();
         services.AddSingleton<UserSettingsView>();
 
@@ -73,15 +70,25 @@ public class Startup
         services.AddScoped<IRepository<PlantProfile>, GenericRepository<PlantProfile>>();
         services.AddScoped<IRepository<Sensor>, GenericRepository<Sensor>>();
         services.AddScoped<IRepository<SensorReading>, GenericRepository<SensorReading>>();
+        services.AddScoped<IRepository<Actuator>, GenericRepository<Actuator>>();
         services.AddScoped<UserRepo>();
 
-        // Register services
+        // Register Logic Layer Services
         services.AddTransient<UserManagementService>();
         services.AddTransient<PlantProfileService>();
-        services.AddTransient<SensorDataIngestionService>();
-        
 
-        // Register I2C Reading Service
+        // Register ActuatorService with a custom I2C address
+        services.AddTransient<ActuatorService>(sp =>
+        {
+            var actuatorRepo = sp.GetRequiredService<IRepository<Actuator>>();
+            var logger = sp.GetRequiredService<ILogger<ActuatorService>>();
+            return new ActuatorService(actuatorRepo, logger, actuatorAddress: 0x59); // Custom address here
+        });
+
+        // Register Sensor Data Ingestion Service
+        services.AddTransient<SensorDataIngestionService>();
+
+        // Register I2C Reading Service with required dependencies
         services.AddTransient<I2cReadingService>(sp =>
         {
             var ingestionService = sp.GetRequiredService<SensorDataIngestionService>();
@@ -101,18 +108,19 @@ public class Startup
         {
             app.UseDeveloperExceptionPage();
 
-            // Enable Swagger
+            // Enable Swagger UI
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "BioPulse API v1");
-                c.RoutePrefix = string.Empty;
+                c.RoutePrefix = string.Empty; // Swagger at root
             });
         }
 
         // Enable CORS
         app.UseCors("AllowAll");
 
+        // Configure Routing
         app.UseRouting();
 
         // Log registered routes

@@ -28,7 +28,6 @@ namespace PresentationTier.ViewModels
             CreateNewProfileCommand = ReactiveCommand.Create(CreateNewProfile);
             DeleteProfileCommand = ReactiveCommand.CreateFromTask(DeleteProfileAsync);
 
-            // Load profiles on initialization
             LoadProfilesCommand.Execute().Subscribe();
         }
 
@@ -56,61 +55,16 @@ namespace PresentationTier.ViewModels
             set => this.RaiseAndSetIfChanged(ref _errorMessage, value);
         }
 
-        private string _phMin;
-        public string PhMin
-        {
-            get => _phMin;
-            set => this.RaiseAndSetIfChanged(ref _phMin, value);
-        }
+        private string _phMin, _phMax, _tempMin, _tempMax, _ecMin, _ecMax, _lightMin, _lightMax;
 
-        private string _phMax;
-        public string PhMax
-        {
-            get => _phMax;
-            set => this.RaiseAndSetIfChanged(ref _phMax, value);
-        }
-
-        private string _tempMin;
-        public string TempMin
-        {
-            get => _tempMin;
-            set => this.RaiseAndSetIfChanged(ref _tempMin, value);
-        }
-
-        private string _tempMax;
-        public string TempMax
-        {
-            get => _tempMax;
-            set => this.RaiseAndSetIfChanged(ref _tempMax, value);
-        }
-
-        private string _ecMin;
-        public string EcMin
-        {
-            get => _ecMin;
-            set => this.RaiseAndSetIfChanged(ref _ecMin, value);
-        }
-
-        private string _ecMax;
-        public string EcMax
-        {
-            get => _ecMax;
-            set => this.RaiseAndSetIfChanged(ref _ecMax, value);
-        }
-
-        private string _lightMin;
-        public string LightMin
-        {
-            get => _lightMin;
-            set => this.RaiseAndSetIfChanged(ref _lightMin, value);
-        }
-
-        private string _lightMax;
-        public string LightMax
-        {
-            get => _lightMax;
-            set => this.RaiseAndSetIfChanged(ref _lightMax, value);
-        }
+        public string PhMin { get => _phMin; set => this.RaiseAndSetIfChanged(ref _phMin, value); }
+        public string PhMax { get => _phMax; set => this.RaiseAndSetIfChanged(ref _phMax, value); }
+        public string TempMin { get => _tempMin; set => this.RaiseAndSetIfChanged(ref _tempMin, value); }
+        public string TempMax { get => _tempMax; set => this.RaiseAndSetIfChanged(ref _tempMax, value); }
+        public string EcMin { get => _ecMin; set => this.RaiseAndSetIfChanged(ref _ecMin, value); }
+        public string EcMax { get => _ecMax; set => this.RaiseAndSetIfChanged(ref _ecMax, value); }
+        public string LightMin { get => _lightMin; set => this.RaiseAndSetIfChanged(ref _lightMin, value); }
+        public string LightMax { get => _lightMax; set => this.RaiseAndSetIfChanged(ref _lightMax, value); }
 
         public ReactiveCommand<Unit, Unit> LoadProfilesCommand { get; }
         public ReactiveCommand<Unit, Unit> SaveProfileCommand { get; }
@@ -146,37 +100,20 @@ namespace PresentationTier.ViewModels
                     return;
                 }
 
-                if (!double.TryParse(PhMin, out var phMin) ||
-                    !double.TryParse(PhMax, out var phMax) ||
-                    !double.TryParse(TempMin, out var tempMin) ||
-                    !double.TryParse(TempMax, out var tempMax) ||
-                    !double.TryParse(EcMin, out var ecMin) ||
-                    !double.TryParse(EcMax, out var ecMax) ||
-                    !double.TryParse(LightMin, out var lightMin) ||
-                    !double.TryParse(LightMax, out var lightMax))
-                {
-                    ErrorMessage = "All numeric fields must contain valid numbers.";
-                    return;
-                }
-
                 SelectedProfile.Name = NewProfileName;
-                SelectedProfile.PhMin = phMin;
-                SelectedProfile.PhMax = phMax;
-                SelectedProfile.TemperatureMin = tempMin;
-                SelectedProfile.TemperatureMax = tempMax;
-                SelectedProfile.EcMin = ecMin;
-                SelectedProfile.EcMax = ecMax;
-                SelectedProfile.LightMin = lightMin;
-                SelectedProfile.LightMax = lightMax;
+                SelectedProfile.PhMin = double.Parse(PhMin);
+                SelectedProfile.PhMax = double.Parse(PhMax);
+                SelectedProfile.TemperatureMin = double.Parse(TempMin);
+                SelectedProfile.TemperatureMax = double.Parse(TempMax);
+                SelectedProfile.EcMin = double.Parse(EcMin);
+                SelectedProfile.EcMax = double.Parse(EcMax);
+                SelectedProfile.LightMin = double.Parse(LightMin);
+                SelectedProfile.LightMax = double.Parse(LightMax);
 
                 if (SelectedProfile.Id == 0)
-                {
                     await _plantProfileService.AddPlantProfileAsync(SelectedProfile);
-                }
                 else
-                {
                     await _plantProfileService.UpdatePlantProfileAsync(SelectedProfile);
-                }
 
                 await LoadProfilesAsync();
                 ErrorMessage = "Profile saved successfully.";
@@ -198,15 +135,22 @@ namespace PresentationTier.ViewModels
                 }
 
                 await _plantProfileService.ActivateProfileAsync(SelectedProfile.Id);
-                ErrorMessage = $"Profile '{SelectedProfile.Name}' is now active.";
 
-                await LoadProfilesAsync(); // Refresh profiles to show the updated active state
+                // Update message after successful activation
+                ErrorMessage = $"Plant profile '{SelectedProfile.Name}' activated successfully.";
+
+                // Refresh profiles to reflect the new active state
+                await LoadProfilesAsync();
+
+                // Keep fields updated for the selected profile
+                UpdateFieldsForSelectedProfile();
             }
             catch (Exception ex)
             {
                 ErrorMessage = $"Error activating profile: {ex.Message}";
             }
         }
+
 
         private void CreateNewProfile()
         {
@@ -250,10 +194,6 @@ namespace PresentationTier.ViewModels
                 EcMax = _selectedProfile.EcMax.ToString();
                 LightMin = _selectedProfile.LightMin.ToString();
                 LightMax = _selectedProfile.LightMax.ToString();
-            }
-            else
-            {
-                ClearFields();
             }
         }
 
