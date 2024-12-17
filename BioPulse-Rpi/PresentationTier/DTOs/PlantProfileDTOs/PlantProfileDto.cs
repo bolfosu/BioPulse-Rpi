@@ -7,6 +7,8 @@ public class PlantProfileDto
     public int Id { get; set; }
     public string Name { get; set; }
     public bool IsDefault { get; set; }
+    
+    public bool Active { get; set; } 
     public double PhMin { get; set; }
     public double PhMax { get; set; }
     public double TemperatureMin { get; set; }

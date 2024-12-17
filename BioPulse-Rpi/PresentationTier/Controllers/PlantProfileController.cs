@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using DataAccessLayer.Models;
 using LogicLayer.Services;
@@ -45,32 +46,37 @@ namespace PresentationTier.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetPlantProfileById(int id)
         {
-            var profile = await _plantProfileService.GetPlantProfileByIdAsync(id);
-            if (profile == null)
-                return NotFound("Plant profile not found.");
-
-            return Ok(new PlantProfileDto
+            try
             {
-                Id = profile.Id,
-                Name = profile.Name,
-                IsDefault = profile.IsDefault,
-                PhMin = profile.PhMin,
-                PhMax = profile.PhMax,
-                TemperatureMin = profile.TemperatureMin,
-                TemperatureMax = profile.TemperatureMax,
-                LightOnTime = profile.LightOnTime,
-                LightOffTime = profile.LightOffTime,
-                LightMin = profile.LightMin,
-                LightMax = profile.LightMax,
-                EcMin = profile.EcMin,
-                EcMax = profile.EcMax
-            });
+                var profile = await _plantProfileService.GetPlantProfileByIdAsync(id);
+                return Ok(new PlantProfileDto
+                {
+                    Id = profile.Id,
+                    Name = profile.Name,
+                    IsDefault = profile.IsDefault,
+                    PhMin = profile.PhMin,
+                    PhMax = profile.PhMax,
+                    TemperatureMin = profile.TemperatureMin,
+                    TemperatureMax = profile.TemperatureMax,
+                    LightOnTime = profile.LightOnTime,
+                    LightOffTime = profile.LightOffTime,
+                    LightMin = profile.LightMin,
+                    LightMax = profile.LightMax,
+                    EcMin = profile.EcMin,
+                    EcMax = profile.EcMax
+                });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
-
 
         [HttpPost]
         public async Task<IActionResult> AddPlantProfile([FromBody] CreatePlantProfileDto createDto)
         {
+            if (createDto == null) return BadRequest("Invalid plant profile data.");
+
             var profile = new PlantProfile
             {
                 Name = createDto.Name,
@@ -91,9 +97,15 @@ namespace PresentationTier.Controllers
             return Ok("Plant profile created successfully.");
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdatePlantProfile([FromBody] UpdatePlantProfileDto updateDto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdatePlantProfile(int id, [FromBody] UpdatePlantProfileDto updateDto)
         {
+            if (updateDto == null) 
+                return BadRequest("Invalid plant profile data.");
+
+            if (id != updateDto.Id)
+                return BadRequest("ID in the URL does not match ID in the body.");
+
             var profile = new PlantProfile
             {
                 Id = updateDto.Id,
@@ -111,8 +123,20 @@ namespace PresentationTier.Controllers
                 EcMax = updateDto.EcMax
             };
 
-            await _plantProfileService.UpdatePlantProfileAsync(profile);
-            return Ok("Plant profile updated successfully.");
+            try
+            {
+                await _plantProfileService.UpdatePlantProfileAsync(profile);
+                return Ok("Plant profile updated successfully.");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (System.Exception ex)
+            {
+                // Log the exception details (optional)
+                return StatusCode(500, "An error occurred while updating the plant profile.");
+            }
         }
 
         [HttpDelete("{id}")]
@@ -120,6 +144,45 @@ namespace PresentationTier.Controllers
         {
             await _plantProfileService.DeletePlantProfileAsync(id);
             return Ok("Plant profile deleted successfully.");
+        }
+
+        [HttpPost("{id}/activate")]
+        public async Task<IActionResult> ActivatePlantProfile(int id)
+        {
+            try
+            {
+                await _plantProfileService.ActivateProfileAsync(id);
+                return Ok($"Plant profile with ID {id} activated successfully.");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        [HttpGet("active")]
+        public async Task<IActionResult> GetActivePlantProfile()
+        {
+            var activeProfile = await _plantProfileService.GetActiveProfileAsync();
+            if (activeProfile == null)
+                return NotFound("No active plant profile found.");
+
+            return Ok(new PlantProfileDto
+            {
+                Id = activeProfile.Id,
+                Name = activeProfile.Name,
+                IsDefault = activeProfile.IsDefault,
+                PhMin = activeProfile.PhMin,
+                PhMax = activeProfile.PhMax,
+                TemperatureMin = activeProfile.TemperatureMin,
+                TemperatureMax = activeProfile.TemperatureMax,
+                LightOnTime = activeProfile.LightOnTime,
+                LightOffTime = activeProfile.LightOffTime,
+                LightMin = activeProfile.LightMin,
+                LightMax = activeProfile.LightMax,
+                EcMin = activeProfile.EcMin,
+                EcMax = activeProfile.EcMax
+            });
         }
     }
 }
