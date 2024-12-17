@@ -79,6 +79,7 @@ public class Startup
         services.AddTransient<UserManagementService>();
         services.AddTransient<PlantProfileService>();
         services.AddTransient<SensorDataIngestionService>();
+        
 
         // Register I2C Reading Service
         services.AddTransient<I2cReadingService>(sp =>

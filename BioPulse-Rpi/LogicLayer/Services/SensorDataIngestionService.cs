@@ -34,6 +34,9 @@ namespace LogicLayer.Services
             InitializeCache().Wait();
         }
 
+        /// <summary>
+        /// Initializes the sensor cache with known sensors.
+        /// </summary>
         private async Task InitializeCache()
         {
             _logger.LogInformation("Loading sensors into cache...");
@@ -48,52 +51,41 @@ namespace LogicLayer.Services
             _logger.LogInformation("Sensor cache initialized with {Count} entries.", _sensorCache.Count);
         }
 
+        /// <summary>
+        /// Processes a JSON reading from a sensor.
+        /// </summary>
+        /// <param name="jsonReading">The JSON string containing the sensor reading.</param>
         public async Task ProcessReadingAsync(string jsonReading)
         {
             await _semaphore.WaitAsync();
             try
             {
+                // Deserialize and validate the JSON reading
                 var readingData = JsonSerializer.Deserialize<SensorReadingDto>(jsonReading);
-                if (readingData == null) return;
-
-                var plantProfiles = await _plantProfileRepo.GetAllAsync();
-                var defaultProfile = plantProfiles.FirstOrDefault(p => p.IsDefault);
-
-                if (defaultProfile != null && Enum.TryParse<SensorType>(readingData.TYPE, true, out var sensorType))
+                if (readingData == null)
                 {
-                    switch (sensorType)
-                    {
-                        case SensorType.Temp:
-                            if (readingData.VALUE > defaultProfile.TemperatureMax)
-                            {
-                                _logger.LogInformation("Temperature exceeded max threshold. Switching actuator ON.");
-                                await _actuatorService.SwitchOnAsync(1); // Example actuator ID
-                            }
-                            else if (readingData.VALUE < defaultProfile.TemperatureMin)
-                            {
-                                _logger.LogInformation("Temperature below min threshold. Switching actuator OFF.");
-                                await _actuatorService.SwitchOffAsync(1);
-                            }
-                            break;
-
-                        case SensorType.EC:
-                            if (readingData.VALUE > defaultProfile.EcMax)
-                            {
-                                _logger.LogInformation("EC exceeded max threshold. Switching actuator ON.");
-                                await _actuatorService.SwitchOnAsync(2); // Example actuator ID
-                            }
-                            else if (readingData.VALUE < defaultProfile.EcMin)
-                            {
-                                _logger.LogInformation("EC below min threshold. Switching actuator OFF.");
-                                await _actuatorService.SwitchOffAsync(2);
-                            }
-                            break;
-
-                        default:
-                            _logger.LogInformation("Sensor type '{SensorType}' does not have actuator logic implemented.", sensorType);
-                            break;
-                    }
+                    _logger.LogWarning("Failed to parse sensor reading JSON.");
+                    return;
                 }
+
+                if (!Enum.TryParse<SensorType>(readingData.TYPE, true, out var sensorType))
+                {
+                    _logger.LogWarning("Invalid sensor type '{TYPE}' in reading.", readingData.TYPE);
+                    return;
+                }
+
+                // Retrieve the active plant profile
+                var plantProfiles = await _plantProfileRepo.GetAllAsync();
+                var activeProfile = plantProfiles.FirstOrDefault(p => p.Active);
+
+                if (activeProfile == null)
+                {
+                    _logger.LogInformation("No active plant profile found. Skipping sensor reading processing.");
+                    return;
+                }
+
+                // Process the sensor reading based on its type
+                await ProcessSensorReading(readingData, sensorType, activeProfile);
             }
             catch (JsonException ex)
             {
@@ -105,6 +97,66 @@ namespace LogicLayer.Services
             }
         }
 
+        private async Task ProcessSensorReading(SensorReadingDto readingData, SensorType sensorType, PlantProfile activeProfile)
+        {
+            switch (sensorType)
+            {
+                case SensorType.Temp:
+                    await HandleTemperatureReading(readingData.VALUE, activeProfile);
+                    break;
+
+                case SensorType.EC:
+                    await HandleEcReading(readingData.VALUE, activeProfile);
+                    break;
+
+                default:
+                    _logger.LogInformation("Sensor type '{SensorType}' does not have actuator logic implemented.", sensorType);
+                    break;
+            }
+        }
+
+        private async Task HandleTemperatureReading(double value, PlantProfile profile)
+        {
+            if (value > profile.TemperatureMax)
+            {
+                _logger.LogInformation("Temperature exceeded max threshold. Switching actuator ON.");
+                await _actuatorService.SwitchOnAsync(1); // Example actuator ID for temperature control
+            }
+            else if (value < profile.TemperatureMin)
+            {
+                _logger.LogInformation("Temperature below min threshold. Switching actuator ON.");
+                await _actuatorService.SwitchOnAsync(1); // Example actuator ID for temperature control
+            }
+            else
+            {
+                _logger.LogInformation("Temperature within range. Switching actuator OFF.");
+                await _actuatorService.SwitchOffAsync(1); // Example actuator ID for temperature control
+            }
+        }
+
+        private async Task HandleEcReading(double value, PlantProfile profile)
+        {
+            if (value > profile.EcMax)
+            {
+                _logger.LogInformation("EC exceeded max threshold. Switching EcDown actuator ON.");
+                await _actuatorService.SwitchOnAsync(2); // EcDown actuator ID
+            }
+            else if (value < profile.EcMin)
+            {
+                _logger.LogInformation("EC below min threshold. Switching EcUp actuator ON.");
+                await _actuatorService.SwitchOnAsync(3); // EcUp actuator ID
+            }
+            else
+            {
+                _logger.LogInformation("EC within range. Switching actuators OFF.");
+                await _actuatorService.SwitchOffAsync(2); // EcDown actuator ID
+                await _actuatorService.SwitchOffAsync(3); // EcUp actuator ID
+            }
+        }
+
+        /// <summary>
+        /// DTO for sensor reading deserialization.
+        /// </summary>
         private class SensorReadingDto
         {
             [JsonPropertyName("id")]
