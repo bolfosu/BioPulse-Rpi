@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DataAccessLayer.Models;
@@ -73,24 +74,24 @@ namespace PresentationTier.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddPlantProfile([FromBody] CreatePlantProfileDto createDto)
+        public async Task<IActionResult> AddPlantProfile([FromBody] PlantProfileDto dto)
         {
-            if (createDto == null) return BadRequest("Invalid plant profile data.");
+            if (dto == null) return BadRequest("Invalid plant profile data.");
 
             var profile = new PlantProfile
             {
-                Name = createDto.Name,
-                IsDefault = createDto.IsDefault,
-                PhMin = createDto.PhMin,
-                PhMax = createDto.PhMax,
-                TemperatureMin = createDto.TemperatureMin,
-                TemperatureMax = createDto.TemperatureMax,
-                LightOnTime = createDto.LightOnTime,
-                LightOffTime = createDto.LightOffTime,
-                LightMin = createDto.LightMin,
-                LightMax = createDto.LightMax,
-                EcMin = createDto.EcMin,
-                EcMax = createDto.EcMax
+                Name = dto.Name,
+                IsDefault = dto.IsDefault ?? false, // Default to false if null
+                PhMin = dto.PhMin ?? 0,
+                PhMax = dto.PhMax ?? 0,
+                TemperatureMin = dto.TemperatureMin ?? 0,
+                TemperatureMax = dto.TemperatureMax ?? 0,
+                LightOnTime = dto.LightOnTime ?? DateTime.MinValue,
+                LightOffTime = dto.LightOffTime ?? DateTime.MinValue,
+                LightMin = dto.LightMin ?? 0,
+                LightMax = dto.LightMax ?? 0,
+                EcMin = dto.EcMin ?? 0,
+                EcMax = dto.EcMax ?? 0
             };
 
             await _plantProfileService.AddPlantProfileAsync(profile);
@@ -98,29 +99,27 @@ namespace PresentationTier.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePlantProfile(int id, [FromBody] UpdatePlantProfileDto updateDto)
+        public async Task<IActionResult> UpdatePlantProfile(int id, [FromBody] PlantProfileDto dto)
         {
-            if (updateDto == null) 
-                return BadRequest("Invalid plant profile data.");
-
-            if (id != updateDto.Id)
-                return BadRequest("ID in the URL does not match ID in the body.");
+            if (dto == null || dto.Id != id)
+                return BadRequest("Invalid plant profile data or ID mismatch.");
 
             var profile = new PlantProfile
             {
-                Id = updateDto.Id,
-                Name = updateDto.Name,
-                IsDefault = updateDto.IsDefault,
-                PhMin = updateDto.PhMin,
-                PhMax = updateDto.PhMax,
-                TemperatureMin = updateDto.TemperatureMin,
-                TemperatureMax = updateDto.TemperatureMax,
-                LightOnTime = updateDto.LightOnTime,
-                LightOffTime = updateDto.LightOffTime,
-                LightMin = updateDto.LightMin,
-                LightMax = updateDto.LightMax,
-                EcMin = updateDto.EcMin,
-                EcMax = updateDto.EcMax
+                Id = id,
+                Name = dto.Name,
+                IsDefault = dto.IsDefault ?? false,
+                Active = dto.Active ?? false,
+                PhMin = dto.PhMin ?? 0,
+                PhMax = dto.PhMax ?? 0,
+                TemperatureMin = dto.TemperatureMin ?? 0,
+                TemperatureMax = dto.TemperatureMax ?? 0,
+                LightOnTime = dto.LightOnTime ?? DateTime.MinValue,
+                LightOffTime = dto.LightOffTime ?? DateTime.MinValue,
+                LightMin = dto.LightMin ?? 0,
+                LightMax = dto.LightMax ?? 0,
+                EcMin = dto.EcMin ?? 0,
+                EcMax = dto.EcMax ?? 0
             };
 
             try
@@ -131,11 +130,6 @@ namespace PresentationTier.Controllers
             catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);
-            }
-            catch (System.Exception ex)
-            {
-                // Log the exception details (optional)
-                return StatusCode(500, "An error occurred while updating the plant profile.");
             }
         }
 
