@@ -120,11 +120,14 @@ public class Startup
             });
         }
 
-        // Enable CORS
-        app.UseCors("AllowAll");
-
-        // Configure Routing
         app.UseRouting();
+
+        // Update the CORS policy
+        app.UseCors(policy =>
+            policy.WithOrigins("https://boisterous-chaja-b2b6ff.netlify.app")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+        );
 
         // Log registered routes
         app.UseEndpoints(endpoints =>
