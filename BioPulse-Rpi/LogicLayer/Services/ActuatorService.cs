@@ -1,66 +1,48 @@
 ﻿using System;
 using System.Device.I2c;
 using System.Threading.Tasks;
-using DataAccessLayer.Models;
-using DataAccessLayer.Repositories;
 using Microsoft.Extensions.Logging;
 
 namespace LogicLayer.Services
 {
     public class ActuatorService
     {
-        private readonly IRepository<Actuator> _actuatorRepo;
         private readonly ILogger<ActuatorService> _logger;
         private readonly int _busId = 1;
-        private readonly int _actuatorAddress;
+        private readonly int _address;
 
-        public ActuatorService(IRepository<Actuator> actuatorRepo, ILogger<ActuatorService> logger, int actuatorAddress = 0x60)
+        public ActuatorService(ILogger<ActuatorService> logger, int actuatorAddress)
         {
-            _actuatorRepo = actuatorRepo;
             _logger = logger;
-            _actuatorAddress = actuatorAddress;
+            _address = actuatorAddress;
         }
 
-        public async Task SwitchOnAsync(int actuatorId)
+        public virtual async Task SwitchOnAsync()
         {
-            await UpdateActuatorStateAsync(actuatorId, true);
-            SendCommand(0x01); // ON command
-            _logger.LogInformation("Actuator switched ON at address 0x{Address:X2}", _actuatorAddress);
+            await SendCommandAsync(0x01); // ON Command
+            _logger.LogInformation("pH UP Actuator switched ON at address 0x{Address:X2}", _address);
         }
 
-        public async Task SwitchOffAsync(int actuatorId)
+        public virtual async Task SwitchOffAsync()
         {
-            await UpdateActuatorStateAsync(actuatorId, false);
-            SendCommand(0x00); // OFF command
-            _logger.LogInformation("Actuator switched OFF at address 0x{Address:X2}", _actuatorAddress);
+            await SendCommandAsync(0x00); // OFF Command
+            _logger.LogInformation("pH UP Actuator switched OFF at address 0x{Address:X2}", _address);
         }
 
-        private async Task UpdateActuatorStateAsync(int actuatorId, bool isOn)
-        {
-            var actuator = await _actuatorRepo.GetByIdAsync(actuatorId);
-            if (actuator == null)
-            {
-                _logger.LogWarning("Actuator with ID {ActuatorId} not found.", actuatorId);
-                return;
-            }
-
-            actuator.IsOn = isOn;
-            await _actuatorRepo.UpdateAsync(actuator);
-        }
-
-        private void SendCommand(byte command)
+        private Task SendCommandAsync(byte command)
         {
             try
             {
-                var settings = new I2cConnectionSettings(_busId, _actuatorAddress);
+                var settings = new I2cConnectionSettings(_busId, _address);
                 using var device = I2cDevice.Create(settings);
 
-                Span<byte> buffer = stackalloc byte[] { command };
-                device.Write(buffer);
+                device.Write(new byte[] { command });
+                return Task.CompletedTask;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to send command to actuator at address 0x{Address:X2}", _actuatorAddress);
+                _logger.LogError(ex, "Failed to send command to actuator at address 0x{Address:X2}", _address);
+                return Task.FromException(ex);
             }
         }
     }

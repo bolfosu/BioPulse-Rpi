@@ -65,6 +65,8 @@ public class Startup
         services.AddSingleton<UserSettingsViewModel>();
         services.AddSingleton<PlantProfileView>();
         services.AddSingleton<UserSettingsView>();
+        services.AddSingleton<DeviceSettingsView>();
+        services.AddSingleton<DashboardView>();
 
         // Register repositories with IDbContextFactory
         services.AddScoped<IRepository<PlantProfile>, GenericRepository<PlantProfile>>();
@@ -80,10 +82,11 @@ public class Startup
         // Register ActuatorService with a custom I2C address
         services.AddTransient<ActuatorService>(sp =>
         {
-            var actuatorRepo = sp.GetRequiredService<IRepository<Actuator>>();
             var logger = sp.GetRequiredService<ILogger<ActuatorService>>();
-            return new ActuatorService(actuatorRepo, logger, actuatorAddress: 0x59); // Custom address here
+            return new ActuatorService(logger, actuatorAddress: 0x59); // pH actuator address
         });
+
+        services.AddTransient<SensorDataIngestionService>();
 
         // Register Sensor Data Ingestion Service
         services.AddTransient<SensorDataIngestionService>();
